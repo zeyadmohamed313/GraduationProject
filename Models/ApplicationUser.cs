@@ -11,10 +11,10 @@ namespace GraduationProject.Models
 		[Display(Name = "Major")]
 		public string Major { get; set; }
         
-		public List<MyPlan> MyPlans { get; set; }
-		public CurrentlyReading CurrentlyReading { get; set; }
-		public List<Notes> Notes { get; set; }
-		public FavouriteList FavouriteList { get; set; }
+		public List<MyPlan>? MyPlans { get; set; }
+		public CurrentlyReading? CurrentlyReading { get; set; }
+		public List<Notes>? Notes { get; set; }
+		public FavouriteList? FavouriteList { get; set; }
 
 	}
 }
