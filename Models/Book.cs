@@ -16,27 +16,32 @@ namespace GraduationProject.Models
 		[Required]
 		[StringLength(100)]
 		[Display(Name = "Author")]
-		public string Author { get; set; }
+		public string? Author { get; set; }
 
 		[Required]
 		[StringLength(300)]
-		[Display(Name = "Author")]
-		public string GoodReadsUrl { get; set; }
+		[Display(Name = "GoodReadsUrl")]
+		public string? GoodReadsUrl { get; set; }
 
 		[StringLength(500)]
 		[Display(Name = "Description")]
-		public string Description { get; set; }
+		public string? Description { get; set; }
 
 		[Display(Name = "Image URL")]
-		public string ImgUrl { get; set; }
+		public string? ImgUrl { get; set; }
 
 		[DataType(DataType.Date)]
 		[Display(Name = "Release Date")]
-		public DateTime Date { get; set; }
+		public DateTime? Date { get; set; }
 
 		[ForeignKey("Category")]
 		public int CategoryId { get; set; }
 		public Category Category { get; set; }
-		public List<Notes> Notes { get; set; }
+		public List<Notes>? Notes { get; set; }
+		public List<MyPlan>? Myplans { get; set; }
+		public List<CurrentlyReading>currentlyReadings { get; set; }
+		public List<FavouriteList> favourites { get; set; }
+		public List<Plan>? plans { get; set; }
+
 	}
 }

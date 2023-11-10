@@ -1,11 +1,14 @@
 ﻿using GraduationProject.Data.Context;
+using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace GraduationProject.Serviecs.BookServices
 {
 	public class BookRepository:IBookRepository
 	{
-		private readonly ApplicationContext _context; // Assuming you have an Entity Framework DbContext
+
+		private readonly ApplicationContext _context; 
 
 		public BookRepository(ApplicationContext context)
 		{
@@ -14,7 +17,8 @@ namespace GraduationProject.Serviecs.BookServices
 
 		public Book GetById(int id)
 		{
-			return _context.Books.Find(id);
+		    var book =  _context.Books.FirstOrDefault(e => e.ID == id);
+			return book;
 		}
 
 		public List<Book> GetAll()
@@ -22,36 +26,36 @@ namespace GraduationProject.Serviecs.BookServices
 			return _context.Books.ToList();
 		}
 
-		public void Add(Book book)
+		public void Add(BookDTO book)
 		{
-			if (book == null)
-			{
-				throw new ArgumentNullException(nameof(book));
-			}
-
-			_context.Books.Add(book);
+			Book Temp = new Book();
+			Temp.ID = book.ID;
+			Temp.Title = book.Title;
+			Temp.Description = book.Description;
+			Temp.Author = book.Author;
+			Temp.CategoryId= book.CategoryId;
+			_context.Books.Add(Temp);
 			_context.SaveChanges();
 		}
 
-		public void Update(Book book)
+		public void Update(int id,BookDTO newbook)
 		{
-			if (book == null)
-			{
-				throw new ArgumentNullException(nameof(book));
-			}
-
-			_context.Books.Update(book);
+	        var targetbook = _context.Books.FirstOrDefault(e=>e.ID == id);
+			targetbook.Title=newbook.Title;
+			targetbook.Description=newbook.Description;
+			targetbook.Author=newbook.Author;
+			// dont forget to check the exsistance of this categry table 
+			targetbook.CategoryId=newbook.CategoryId;
 			_context.SaveChanges();
 		}
 
 		public void Delete(int id)
 		{
-			var book = _context.Books.Find(id);
-			if (book != null)
-			{
-				_context.Books.Remove(book);
+			var targetbook = _context.Books.FirstOrDefault(e => e.ID == id);
+		
+				_context.Books.Remove(targetbook);
 				_context.SaveChanges();
-			}
+			
 		}
 	}
 }

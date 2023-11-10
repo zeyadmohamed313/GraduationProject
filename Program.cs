@@ -33,7 +33,7 @@ namespace GraduationProject
 			builder.Services.AddScoped<IFavouriteListRepository, FavouriteListRepository>();
 			builder.Services.AddScoped<IMyPlanRepository, MyPlanRepository>();
 			builder.Services.AddScoped<INotesRepository, NotesRepository>();
-			builder.Services.AddScoped<IPlanRepository, IPlanRepository>();
+			builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
