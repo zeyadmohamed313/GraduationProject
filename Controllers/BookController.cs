@@ -74,7 +74,7 @@ namespace GraduationProject.Controllers
 				if (_context.Categories.Any(c => c.ID == book.CategoryId))
 				{
 					_bookRepository.Add(book);
-					return Ok("Book is Added");
+					return Ok(book);
 
 				}
 				else
@@ -97,7 +97,7 @@ namespace GraduationProject.Controllers
 			else
 			{
 				_bookRepository.Delete(book.ID);
-				return Ok(book);
+				return NoContent();
 			}
 		}
 		#endregion

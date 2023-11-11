@@ -7,25 +7,25 @@ namespace GraduationProject.Serviecs.BookServices
 {
 	public class BookRepository:IBookRepository
 	{
-
 		private readonly ApplicationContext _context; 
 
 		public BookRepository(ApplicationContext context)
 		{
 			_context = context;
 		}
-
+		#region GET
 		public Book GetById(int id)
 		{
 		    var book =  _context.Books.FirstOrDefault(e => e.ID == id);
 			return book;
 		}
-
+		
 		public List<Book> GetAll()
 		{
 			return _context.Books.ToList();
 		}
-
+		#endregion
+		#region ADD
 		public void Add(BookDTO book)
 		{
 			Book Temp = new Book();
@@ -37,7 +37,8 @@ namespace GraduationProject.Serviecs.BookServices
 			_context.Books.Add(Temp);
 			_context.SaveChanges();
 		}
-
+		#endregion
+		#region Update
 		public void Update(int id,BookDTO newbook)
 		{
 	        var targetbook = _context.Books.FirstOrDefault(e=>e.ID == id);
@@ -48,14 +49,15 @@ namespace GraduationProject.Serviecs.BookServices
 			targetbook.CategoryId=newbook.CategoryId;
 			_context.SaveChanges();
 		}
-
+		#endregion
+		#region Delete
 		public void Delete(int id)
 		{
-			var targetbook = _context.Books.FirstOrDefault(e => e.ID == id);
-		
+			var targetbook = _context.Books.FirstOrDefault(e => e.ID == id);		
 				_context.Books.Remove(targetbook);
 				_context.SaveChanges();
 			
 		}
+		#endregion
 	}
 }

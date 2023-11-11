@@ -24,6 +24,7 @@ namespace GraduationProject.DTO
 		[StringLength(500)]
 		[Display(Name = "Description")]
 		public string? Description { get; set; }
+		[Required]
 		public int CategoryId { get; set; }
 	}
 }

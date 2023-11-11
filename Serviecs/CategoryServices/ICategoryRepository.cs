@@ -1,4 +1,5 @@
-﻿using GraduationProject.Models;
+﻿using GraduationProject.DTO;
+using GraduationProject.Models;
 
 namespace GraduationProject.Serviecs.CategoryServices
 {
@@ -6,8 +7,10 @@ namespace GraduationProject.Serviecs.CategoryServices
 	{
 		Category GetById(int id);
 		List<Category> GetAll();
-		void Add(Category category);
-		void Update(Category category);
+		void Add(CategoryDTO category);
+		void AddBook(int CategoryID,int BookID);
+		void Update(int id,CategoryDTO category);
 		void Delete(int id);
+		public void DeleteBook(int CategoryID, int BookID);
 	}
 }

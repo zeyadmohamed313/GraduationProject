@@ -14,8 +14,10 @@ namespace GraduationProject.Models
 
 		[Display(Name = "Image URL")]
 		public string ImageUrl { get; set; }
+		[Display(Name="Descreption")]
+		public string Description { get; set; }
 
 		// Navigation property for the list of associated books
-		public List<Book> Books { get; set; } = new List<Book>();
+		public List<Book>? Books { get; set; } = new List<Book>();
 	}
 }
