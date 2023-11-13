@@ -13,7 +13,7 @@ namespace GraduationProject.Models
 		public string Name { get; set; }
 
 		[Display(Name = "Image URL")]
-		public string ImageUrl { get; set; }
+		public string? ImageUrl { get; set; }
 		[Display(Name="Descreption")]
 		public string Description { get; set; }
 

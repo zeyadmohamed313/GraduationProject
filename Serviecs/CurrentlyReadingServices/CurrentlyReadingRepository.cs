@@ -1,57 +1,58 @@
 ﻿using GraduationProject.Data.Context;
+using GraduationProject.DTO;
 using GraduationProject.Models;
 
 namespace GraduationProject.Serviecs.CurrentlyReadingServices
 {
 	public class CurrentlyReadingRepository:ICurrentlyReadingRepository
 	{
-		private readonly ApplicationContext _context; // Assuming you have an Entity Framework DbContext
+		private readonly ApplicationContext _context; 
 
 		public CurrentlyReadingRepository(ApplicationContext context)
 		{
 			_context = context;
 		}
 
+		#region Get
 		public CurrentlyReading GetById(int id)
 		{
-			return _context.CurrentlyReadings.Find(id);
+			return _context.CurrentlyReadings.FirstOrDefault(e => e.Id == id);
 		}
 
-		public List<CurrentlyReading> GetAll()
+		public List<BookDTO> GetAllBooksInMyCurrentlyReadingList(int id)
 		{
-			return _context.CurrentlyReadings.ToList();
+			var booksInsomeCurrentlyReadingList = _context.CurrentlyReadings.FirstOrDefault(e => e.Id == id).Books
+				.Select(book => new BookDTO
+				{
+					ID = book.ID,
+					Title = book.Title,
+					Description = book.Description,
+					Author = book.Author,
+					GoodReadsUrl = book.GoodReadsUrl,
+					CategoryId = book.CategoryId,
+				}).ToList();
+			return booksInsomeCurrentlyReadingList;
 		}
 
-		public void Add(CurrentlyReading currentlyReading)
+		#endregion
+		#region ADD
+		
+		public void AddBook(int CurrentlyReadingsListID, int BookID)
 		{
-			if (currentlyReading == null)
-			{
-				throw new ArgumentNullException(nameof(currentlyReading));
-			}
-
-			_context.CurrentlyReadings.Add(currentlyReading);
+			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.Id == CurrentlyReadingsListID);
+			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
+			TempCLR.Books.Add(TempBook);
 			_context.SaveChanges();
 		}
-
-		public void Update(CurrentlyReading currentlyReading)
+		#endregion
+		#region Delete
+		public void DeleteBook(int CurrentlyReadingsListID, int BookID)
 		{
-			if (currentlyReading == null)
-			{
-				throw new ArgumentNullException(nameof(currentlyReading));
-			}
-
-			_context.CurrentlyReadings.Update(currentlyReading);
+			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.Id == CurrentlyReadingsListID);
+			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
+			TempCLR.Books.Remove(TempBook);
 			_context.SaveChanges();
 		}
-
-		public void Delete(int id)
-		{
-			var currentlyReading = _context.CurrentlyReadings.Find(id);
-			if (currentlyReading != null)
-			{
-				_context.CurrentlyReadings.Remove(currentlyReading);
-				_context.SaveChanges();
-			}
-		}
+		#endregion
 	}
 }

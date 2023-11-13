@@ -1,20 +1,22 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.Models;
+using GraduationProject.DTO;
+using System.Numerics;
 
 namespace GraduationProject.Serviecs.PlanServices
 {
 	public class PlanRepository:IPlanRepository
 	{
-		private readonly ApplicationContext _context; // Assuming you have an Entity Framework DbContext
+		private readonly ApplicationContext _context; 
 
 		public PlanRepository(ApplicationContext context)
 		{
 			_context = context;
 		}
-
+		#region GET
 		public Plan GetById(int id)
 		{
-			return _context.Plans.Find(id);
+			return _context.Plans.FirstOrDefault(e=>e.Id==id);
 		}
 
 		public List<Plan> GetAll()
@@ -22,36 +24,51 @@ namespace GraduationProject.Serviecs.PlanServices
 			return _context.Plans.ToList();
 		}
 
-		public void Add(Plan plan)
+		#endregion
+		#region Add
+		public void Add(PlanDTO plandto)
 		{
-			if (plan == null)
-			{
-				throw new ArgumentNullException(nameof(plan));
-			}
-
+			Plan plan = new Plan();
+			plan.Id = plandto.Id;
+			plan.Name = plandto.Name;
+			plan.Description = plandto.Description;
 			_context.Plans.Add(plan);
 			_context.SaveChanges();
 		}
-
-		public void Update(Plan plan)
+		public void AddBook(int PlanID, int BookID)
 		{
-			if (plan == null)
-			{
-				throw new ArgumentNullException(nameof(plan));
-			}
+			Plan TempPlan = _context.Plans.FirstOrDefault(e => e.Id == PlanID);
+			Book TempBook = _context.Books.FirstOrDefault(e => e.ID == BookID);
+			TempPlan.Books.Add(TempBook);
+			_context.SaveChanges();
+		}
+		#endregion
+		#region Update
+		public void Update(int PlanID,PlanDTO plan)
+		{
+            Plan TempPlan = _context.Plans.FirstOrDefault(e=>e.Id==PlanID);
+			TempPlan.Id= plan.Id;
+			TempPlan.Name= plan.Name;
+			TempPlan.Description= plan.Description;
+			_context.SaveChanges();
+		}
+		#endregion
 
-			_context.Plans.Update(plan);
+		#region Delete
+		public void Delete(int PlanID)
+		{
+			Plan TempPlan = _context.Plans.FirstOrDefault(e => e.Id == PlanID);
+			_context.Plans.Remove(TempPlan);
 			_context.SaveChanges();
 		}
 
-		public void Delete(int id)
+		public void DeleteBook(int PlanID,int BookID) 
 		{
-			var plan = _context.Plans.Find(id);
-			if (plan != null)
-			{
-				_context.Plans.Remove(plan);
-				_context.SaveChanges();
-			}
+			Plan TempPlan = _context.Plans.FirstOrDefault(e => e.Id == PlanID);
+			Book TempBook = _context.Books.FirstOrDefault(e=>e.ID == BookID);
+			TempPlan.Books.Remove(TempBook);
+			_context.SaveChanges();
 		}
+		#endregion
 	}
 }

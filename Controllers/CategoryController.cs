@@ -13,7 +13,7 @@ namespace GraduationProject.Controllers
 	public class CategoryController : ControllerBase
 	{
 		private readonly ICategoryRepository _categoryRepository;
-		private readonly ApplicationContext _context;
+		private readonly ApplicationContext _context; // replace it with Repository
 		public CategoryController(ICategoryRepository categoryRepository, ApplicationContext applicationContext)
 		{
 			_categoryRepository = categoryRepository;
@@ -38,6 +38,14 @@ namespace GraduationProject.Controllers
 
 			return Ok(category);
 		}
+		[HttpGet("All Books From Category/{id}")]
+		public IActionResult GetAllBooksFromCategory(int id)
+		{
+			var books = _categoryRepository.GetAllBooksInSomeCategory(id);
+			if (books == null)
+				return NotFound("There Is No Books in This Category");
+			return Ok(books);
+		}
 		#endregion
 		#region ADD
 		[HttpPost("AddCategory")]
@@ -53,8 +61,8 @@ namespace GraduationProject.Controllers
 			return Ok("Category IS Created");
 		}
 
-		[HttpPost("Add Book/{CategoryID}")]
-		public IActionResult AddBook([FromBody] int BookID , int CategoryID) 
+		[HttpPost("Add Book/{BookID}/{CategoryID}")]
+		public IActionResult AddBook(int BookID , int CategoryID) 
 		{
 			var category = _context.Categories.FirstOrDefault(e => e.ID == CategoryID);
 			if (category == null)
@@ -94,7 +102,7 @@ namespace GraduationProject.Controllers
 			return NoContent();
 		}
 		[HttpDelete("DeleteBook/{id}")]
-		public IActionResult Delete(int id, [FromBody] int BookID)
+		public IActionResult DeleteBook(int id, [FromBody] int BookID)
 		{
 			var TempCategory = _context.Categories.FirstOrDefault(e => e.ID == id);
 			if (TempCategory == null)

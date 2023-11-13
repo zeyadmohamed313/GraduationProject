@@ -1,6 +1,8 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace GraduationProject.Serviecs.CategoryServices
 {
@@ -22,6 +24,23 @@ namespace GraduationProject.Serviecs.CategoryServices
 		{
 			return _context.Categories.ToList();
 		}
+		public List<BookDTO> GetAllBooksInSomeCategory(int id)
+		{
+			var booksInSomeCategory = _context.Books
+				.Where(e => e.CategoryId == id)
+				.Select(book => new BookDTO
+				{
+					ID = book.ID,
+					Title = book.Title,
+					Description = book.Description,
+					Author = book.Author,
+					GoodReadsUrl = book.GoodReadsUrl,
+					CategoryId = book.CategoryId,
+				})
+				.ToList();
+			return booksInSomeCategory;
+		}
+
 		#endregion
 		#region ADD
 		public void Add(CategoryDTO category)
@@ -57,6 +76,8 @@ namespace GraduationProject.Serviecs.CategoryServices
 			var category = _context.Categories.Find(id);
 			if (category != null)
 			{
+				// delete all the books in the category before delete it
+				_context.Books.RemoveRange(_context.Books.Where(e => e.CategoryId == id));
 				_context.Categories.Remove(category);
 				_context.SaveChanges();
 			}
@@ -65,7 +86,7 @@ namespace GraduationProject.Serviecs.CategoryServices
 		{
 			Category TempCategory = _context.Categories.FirstOrDefault(c => c.ID == CategoryID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
-			TempCategory.Books.Add(TempBook);
+			TempCategory.Books.Remove(TempBook);
 			_context.SaveChanges();
 		}
 		#endregion

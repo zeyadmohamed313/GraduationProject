@@ -26,6 +26,10 @@ namespace GraduationProject.Data.Context
 		public DbSet<Notes> Notes { get; set; }
 		public DbSet<MyPlan> MyPlans { get; set; }
 		public DbSet<CurrentlyReading> CurrentlyReadings { get; set; }
+		public DbSet<ToRead> ToReads { get; set; }
+
+		public DbSet<Read> Reads { get; set; }
+
 
 	}
 }

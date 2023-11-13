@@ -1,4 +1,5 @@
-﻿using GraduationProject.Models;
+﻿using GraduationProject.DTO;
+using GraduationProject.Models;
 
 namespace GraduationProject.Serviecs.PlanServices
 {
@@ -6,8 +7,11 @@ namespace GraduationProject.Serviecs.PlanServices
 	{
 		Plan GetById(int id);
 		List<Plan> GetAll();
-		void Add(Plan plan);
-		void Update(Plan plan);
-		void Delete(int id);
+		public void Add(PlanDTO plandto);
+		public void AddBook(int PlanID, int BookID);
+		void Update(int PlanID,PlanDTO plan);
+		void Delete(int PlanID);
+		public void DeleteBook(int PlanID, int BookID);
+
 	}
 }

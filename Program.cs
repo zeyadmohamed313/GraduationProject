@@ -10,6 +10,8 @@ using GraduationProject.Serviecs.FavouriteListServices;
 using GraduationProject.Serviecs.MyPlanServices;
 using GraduationProject.Serviecs.PlanServices;
 using GraduationProject.Serviecs.NotesServices;
+using Microsoft.AspNetCore.Hosting;
+using GraduationProject.Serviecs.ReadServices;
 
 namespace GraduationProject
 {
@@ -34,6 +36,8 @@ namespace GraduationProject
 			builder.Services.AddScoped<IMyPlanRepository, MyPlanRepository>();
 			builder.Services.AddScoped<INotesRepository, NotesRepository>();
 			builder.Services.AddScoped<IPlanRepository, PlanRepository>();
+			builder.Services.AddScoped<IToReadRepository, ToReadRepository>();
+			builder.Services.AddScoped<IReadRepository, ReadRepository>();
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.

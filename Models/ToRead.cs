@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GraduationProject.Models
 {
-	public class CurrentlyReading
+	public class ToRead
 	{
 		[Key]
 		public int Id { get; set; }
