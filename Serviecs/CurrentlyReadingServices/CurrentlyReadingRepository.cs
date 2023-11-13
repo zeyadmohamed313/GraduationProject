@@ -18,7 +18,11 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		{
 			return _context.CurrentlyReadings.FirstOrDefault(e => e.Id == id);
 		}
+		public CurrentlyReading GetByUserId(string userId)
+		{
+			return _context.CurrentlyReadings.FirstOrDefault(e => e.UserId == userId);
 
+		}
 		public List<BookDTO> GetAllBooksInMyCurrentlyReadingList(int id)
 		{
 			var booksInsomeCurrentlyReadingList = _context.CurrentlyReadings.FirstOrDefault(e => e.Id == id).Books

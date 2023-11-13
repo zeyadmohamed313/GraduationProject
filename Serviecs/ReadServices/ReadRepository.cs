@@ -18,7 +18,10 @@ namespace GraduationProject.Serviecs.ReadServices
 		{
 			return _context.Reads.FirstOrDefault(e => e.Id == id);
 		}
-
+		public Read GetByUserId(string userId)
+		{
+			return _context.Reads.FirstOrDefault(e => e.UserId==userId);
+		}
 
 		public List<BookDTO> GetAllBooksInMyReadsList(int id)
 		{

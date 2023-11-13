@@ -30,7 +30,14 @@ namespace GraduationProject.Controllers
 			}
 			return Ok(tempFavouriteList);
 		}
-
+		[HttpGet("GetByUserId/{UserID}")]
+		public IActionResult GetByUserID(string UserID)
+		{
+			var fav = _favouriteListRepository.GetByUserId(UserID);
+			if (fav == null)
+				return NotFound("There is No Currently Reading List for this User");
+			return Ok(fav);
+		}
 		[HttpGet("GetAllBooksInMyFavouriteList/{id}")]
 		public IActionResult GetAll(int id)
 		{

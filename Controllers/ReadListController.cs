@@ -31,6 +31,14 @@ namespace GraduationProject.Controllers
 			}
 			return Ok(tempToRead);
 		}
+		[HttpGet("GetByUserId/{UserID}")]
+		public IActionResult GetByUserID(string UserID)
+		{
+			var read = _ReadRepository.GetByUserId(UserID);
+			if (read == null)
+				return NotFound("There is No Currently Reading List for this User");
+			return Ok(read);
+		}
 
 		[HttpGet("GetAllBooksInMyToReadList/{id}")]
 		public IActionResult GetAll(int id)

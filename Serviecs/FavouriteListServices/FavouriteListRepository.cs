@@ -17,6 +17,11 @@ namespace GraduationProject.Serviecs.FavouriteListServices
 		{
 			return _context.FavouriteLists.FirstOrDefault(e => e.Id == id);
 		}
+		public FavouriteList GetByUserId(string userId)
+		{
+		    return _context.FavouriteLists.FirstOrDefault(e => e.UserId == userId);	
+		}
+
 		public List<BookDTO> GetAllBooksInMyFavouriteList(int id)
 		{
 			var booksInsomeFavouriteList = _context.FavouriteLists.FirstOrDefault(e => e.Id == id).Books

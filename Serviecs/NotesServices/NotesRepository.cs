@@ -1,57 +1,61 @@
 ﻿using GraduationProject.Data.Context;
+using GraduationProject.DTO;
 using GraduationProject.Models;
 
 namespace GraduationProject.Serviecs.NotesServices
 {
 	public class NotesRepository:INotesRepository
 	{
-		private readonly ApplicationContext _context; // Assuming you have an Entity Framework DbContext
+		private readonly ApplicationContext _context; 
 
 		public NotesRepository(ApplicationContext context)
 		{
 			_context = context;
 		}
-
-		public Notes GetById(int id)
+		#region GET
+		public NoteDTO GetById(int id)
 		{
-			return _context.Notes.Find(id);
+		   Notes Note =  _context.Notes.FirstOrDefault(e=>e.Id==id);
+		   return new NoteDTO { Id = id , UserId =Note.UserId,BookId=Note.BookId,PageNumber=Note.PageNumber,NoteText=Note.NoteText};
 		}
 
-		public List<Notes> GetAll()
+		public List<NoteDTO> GetAllNotesForUser(String UserID)
 		{
-			return _context.Notes.ToList();
+			List<NoteDTO> notes = _context.Notes.Where(e => e.UserId == UserID)
+				.Select(note => new NoteDTO
+				{
+					Id = note.Id,
+					UserId = note.UserId,
+					BookId = note.BookId,
+					PageNumber = note.PageNumber,
+					NoteText = note.NoteText
+				}).ToList();
+			return notes;
 		}
-
+		#endregion
 		public void Add(Notes note)
 		{
-			if (note == null)
-			{
-				throw new ArgumentNullException(nameof(note));
-			}
-
 			_context.Notes.Add(note);
 			_context.SaveChanges();
 		}
-
-		public void Update(Notes note)
+		// controller to Service DTO
+		public void UpdateNote(int noteId, NoteDTO updatedNote)
 		{
-			if (note == null)
-			{
-				throw new ArgumentNullException(nameof(note));
-			}
-
-			_context.Notes.Update(note);
+			// Find the existing note by its ID
+			var existingNote = _context.Notes.FirstOrDefault(o => o.Id == noteId);
+			// Update properties of the existing note with the new values from the DTO
+			existingNote.PageNumber = updatedNote.PageNumber;
+			existingNote.NoteText = updatedNote.NoteText;
 			_context.SaveChanges();
 		}
 
 		public void Delete(int id)
 		{
-			var note = _context.Notes.Find(id);
-			if (note != null)
-			{
+			var note = _context.Notes.FirstOrDefault(o => o.Id == id);
+			
 				_context.Notes.Remove(note);
 				_context.SaveChanges();
-			}
+			
 		}
 	}
 }
