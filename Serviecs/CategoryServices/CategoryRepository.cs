@@ -52,19 +52,11 @@ namespace GraduationProject.Serviecs.CategoryServices
 			_context.Categories.Add(TempCategory);
 			_context.SaveChanges();
 		}
-		public void AddBook(int CategoryID, int BookID) 
-		{
-			Category TempCategory = _context.Categories.FirstOrDefault(c => c.ID == CategoryID);
-			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
-			TempCategory.Books.Add(TempBook);
-			_context.SaveChanges();	
-		}
 		#endregion
 		#region Update
 		public void Update(int id,CategoryDTO category)
 		{
-			Category TempCategory = _context.Categories.FirstOrDefault(e=>e.ID == category.ID);
-			TempCategory.ID = category.ID;
+			Category TempCategory = _context.Categories.FirstOrDefault(e=>e.ID ==id);
 			TempCategory.Name = category.Name;
 			TempCategory.Description = category.Description;
 			_context.SaveChanges();
@@ -73,7 +65,7 @@ namespace GraduationProject.Serviecs.CategoryServices
 		#region Delete
 		public void Delete(int id)
 		{
-			var category = _context.Categories.Find(id);
+			var category = _context.Categories.FirstOrDefault(e=>e.ID==id);
 			if (category != null)
 			{
 				// delete all the books in the category before delete it

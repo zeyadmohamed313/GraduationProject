@@ -8,6 +8,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		CurrentlyReading GetById(int id);
 		public CurrentlyReading GetByUserId(string userId);
 		List<BookDTO> GetAllBooksInMyCurrentlyReadingList(int id);
+		public void AddCurrentlyReadingListToUser(CurrentlyReading currentlyReading);
 		public void AddBook(int CurrentlyReadingsListID, int BookID);
 		public void DeleteBook(int CurrentlyReadingsListID, int BookID);
 	}

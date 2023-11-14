@@ -2,6 +2,7 @@
 using GraduationProject.DTO;
 using GraduationProject.Models;
 using GraduationProject.Serviecs.BookServices;
+using GraduationProject.Serviecs.CategoryServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,12 @@ namespace GraduationProject.Controllers
 	public class BookController : ControllerBase
 	{
 		private readonly IBookRepository _bookRepository;
-		private readonly ApplicationContext _context;
-		public BookController(IBookRepository bookRepository, ApplicationContext applicationContext) 
+		private readonly ICategoryRepository _categoryRepository;
+		public BookController(IBookRepository bookRepository,ICategoryRepository categoryRepository ) 
 		{ 
 			_bookRepository = bookRepository;
-			_context = applicationContext;
+			_categoryRepository = categoryRepository;
+
 		}
 
 		#region Get
@@ -46,14 +48,15 @@ namespace GraduationProject.Controllers
 		}
 		#endregion
 		#region Update
-		[HttpPut("Update/{book}")]
-		public IActionResult Update(BookDTO book)
+		[HttpPut("Update/{id}")]
+		public IActionResult Update(int id ,[FromBody]BookDTO book)
 		{
 			if (ModelState.IsValid)
 			{ // for testing dont forget to replace it with name
-				if (_context.Categories.Any(c => c.ID == book.CategoryId))
+				var Categ = _categoryRepository.GetById(book.CategoryId);
+				if (Categ!=null)
 				{
-					_bookRepository.Update(book.ID, book);
+					_bookRepository.Update(id, book);
 					return Ok("Book is Updated");
 
 				}
@@ -66,16 +69,17 @@ namespace GraduationProject.Controllers
 
 		#endregion
 		#region ADD
-		[HttpPost("AddBook/{book}")]
-		public IActionResult Add(BookDTO book)
+		[HttpPost("AddBook")]
+		public IActionResult Add([FromBody]BookDTO book)
 		{
+
 			if (ModelState.IsValid)
 			{ // for testing dont forget to replace it with name
-				if (_context.Categories.Any(c => c.ID == book.CategoryId))
+				var Categ = _categoryRepository.GetById(book.CategoryId);
+				if (Categ != null)
 				{
 					_bookRepository.Add(book);
-					return Ok(book);
-
+					return Ok("The Book Is Added");
 				}
 				else
 					return BadRequest("There is No category with this ID");

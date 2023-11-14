@@ -4,6 +4,7 @@ using GraduationProject.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationProject.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20231114133444_mig3")]
+    partial class mig3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,8 +363,7 @@ namespace GraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Reads");
                 });
@@ -380,8 +382,7 @@ namespace GraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("ToReads");
                 });
@@ -649,8 +650,8 @@ namespace GraduationProject.Migrations
             modelBuilder.Entity("GraduationProject.Models.Read", b =>
                 {
                     b.HasOne("GraduationProject.Models.ApplicationUser", "ApplicationUser")
-                        .WithOne("ReadList")
-                        .HasForeignKey("GraduationProject.Models.Read", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -660,8 +661,8 @@ namespace GraduationProject.Migrations
             modelBuilder.Entity("GraduationProject.Models.ToRead", b =>
                 {
                     b.HasOne("GraduationProject.Models.ApplicationUser", "ApplicationUser")
-                        .WithOne("ToReadList")
-                        .HasForeignKey("GraduationProject.Models.ToRead", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -721,21 +722,13 @@ namespace GraduationProject.Migrations
 
             modelBuilder.Entity("GraduationProject.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("CurrentlyReading")
-                        .IsRequired();
+                    b.Navigation("CurrentlyReading");
 
-                    b.Navigation("FavouriteList")
-                        .IsRequired();
+                    b.Navigation("FavouriteList");
 
                     b.Navigation("MyPlans");
 
                     b.Navigation("Notes");
-
-                    b.Navigation("ReadList")
-                        .IsRequired();
-
-                    b.Navigation("ToReadList")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("GraduationProject.Models.Book", b =>

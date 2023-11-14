@@ -24,6 +24,10 @@ namespace GraduationProject.Controllers
 		public IActionResult GetCategories()
 		{
 			var categories = _categoryRepository.GetAll();
+			if (categories == null)
+			{
+				return NotFound("There is No Category With This ID");
+			}
 			return Ok(categories);
 		}
 		[HttpGet("{id}")]
@@ -60,23 +64,7 @@ namespace GraduationProject.Controllers
 
 			return Ok("Category IS Created");
 		}
-
-		[HttpPost("Add Book/{BookID}/{CategoryID}")]
-		public IActionResult AddBook(int BookID , int CategoryID) 
-		{
-			var category = _context.Categories.FirstOrDefault(e => e.ID == CategoryID);
-			if (category == null)
-			{
-				return NotFound($"Category with ID {CategoryID} not found.");
-			}
-			var book = _context.Books.FirstOrDefault(e => e.ID == BookID);
-			if (book == null)
-			{
-				return NotFound($"Book with ID {BookID} not found.");
-			}
-			_categoryRepository.AddBook(CategoryID, BookID);
-			return Ok("Book Is Added");
-		}
+		
 		#endregion
 		#region Update
 		[HttpPut("Update/{id}")]
@@ -84,9 +72,15 @@ namespace GraduationProject.Controllers
 		{ 
 		    if(ModelState.IsValid)
 			{
+				var toCheck = _categoryRepository.GetById(id);
+				if(toCheck == null)
+				{
+					return NotFound("There Is No Category With This ID");
+				}
 				_categoryRepository.Update(id, category);
+				return Ok("Update Is Done");
 			}
-			return BadRequest(ModelState);
+			return BadRequest(ModelState.ErrorCount);
 		}
 		#endregion
 		#region Delete

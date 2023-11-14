@@ -40,7 +40,14 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 
 		#endregion
 		#region ADD
-		
+		public void AddCurrentlyReadingListToUser(CurrentlyReading currentlyReading)
+		{
+			var Check = _context.CurrentlyReadings.FirstOrDefault(e => e.UserId == currentlyReading.UserId);
+			_context.CurrentlyReadings.Add(currentlyReading);
+			_context.SaveChanges();
+			
+		}
+
 		public void AddBook(int CurrentlyReadingsListID, int BookID)
 		{
 			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.Id == CurrentlyReadingsListID);

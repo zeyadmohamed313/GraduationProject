@@ -40,8 +40,14 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		}
 
 		#endregion
-		#region ADD
 
+		#region ADD
+		public void AddToReadToUser(ToRead toread)
+		{
+			var Check = _context.ToReads.FirstOrDefault(e => e.UserId == toread.UserId);
+			_context.ToReads.Add(toread);
+			_context.SaveChanges();
+		}
 		public void AddBook(int ToReadsListID, int BookID)
 		{
 			ToRead TempToRead = _context.ToReads.FirstOrDefault(c => c.Id == ToReadsListID);

@@ -34,7 +34,9 @@ namespace GraduationProject.Serviecs.BookServices
 			Temp.Description = book.Description;
 			Temp.Author = book.Author;
 			Temp.CategoryId= book.CategoryId;
+			Temp.GoodReadsUrl = book.GoodReadsUrl;
 			_context.Books.Add(Temp);
+			_context.Categories.FirstOrDefault(e => e.ID == book.CategoryId).Books.Add(Temp);
 			_context.SaveChanges();
 		}
 		#endregion

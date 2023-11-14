@@ -8,6 +8,7 @@ namespace GraduationProject.Serviecs.ReadServices
 		Read GetById(int id);
 		public Read GetByUserId(string userId);
 		List<BookDTO> GetAllBooksInMyReadsList(int id);
+		public void AddReadToUser(Read read);
 		public void AddBook(int ReadListID, int BookID);
 		public void DeleteBook(int ReadListID, int BookID);
 	}

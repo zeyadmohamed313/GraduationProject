@@ -39,8 +39,8 @@ namespace GraduationProject.Models
 		public Category Category { get; set; }
 		public List<Notes>? Notes { get; set; }
 		public List<MyPlan>? Myplans { get; set; }
-		public List<CurrentlyReading>currentlyReadings { get; set; }
-		public List<FavouriteList> favourites { get; set; }
+		public List<CurrentlyReading>?currentlyReadings { get; set; }
+		public List<FavouriteList>? favourites { get; set; }
 		public List<Plan>? plans { get; set; }
 
 	}

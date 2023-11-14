@@ -12,6 +12,9 @@ using GraduationProject.Serviecs.PlanServices;
 using GraduationProject.Serviecs.NotesServices;
 using Microsoft.AspNetCore.Hosting;
 using GraduationProject.Serviecs.ReadServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace GraduationProject
 {
@@ -20,7 +23,6 @@ namespace GraduationProject
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
-
 			// Add services to the container.
 
 			builder.Services.AddControllers();
@@ -38,6 +40,25 @@ namespace GraduationProject
 			builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 			builder.Services.AddScoped<IToReadRepository, ToReadRepository>();
 			builder.Services.AddScoped<IReadRepository, ReadRepository>();
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(options =>
+			{
+				options.SaveToken = true;
+				options.RequireHttpsMetadata = false;
+				options.TokenValidationParameters = new TokenValidationParameters()
+				{
+					ValidateIssuer = true,
+					ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+					ValidateAudience = true,
+					ValidAudience = builder.Configuration["JWT:ValidAudiance"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+				};
+
+			});
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.

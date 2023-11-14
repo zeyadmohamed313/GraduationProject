@@ -9,7 +9,6 @@ namespace GraduationProject.Serviecs.CategoryServices
 		List<Category> GetAll();
 		List<BookDTO> GetAllBooksInSomeCategory(int id);
 		void Add(CategoryDTO category);
-		void AddBook(int CategoryID,int BookID);
 		void Update(int id,CategoryDTO category);
 		void Delete(int id);
 		public void DeleteBook(int CategoryID, int BookID);

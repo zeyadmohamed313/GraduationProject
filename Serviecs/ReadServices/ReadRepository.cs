@@ -40,7 +40,12 @@ namespace GraduationProject.Serviecs.ReadServices
 
 		#endregion
 		#region ADD
-
+		public void AddReadToUser(Read read)
+		{
+			var Check = _context.Reads.FirstOrDefault(e => e.UserId == read.UserId);
+			_context.Reads.Add(read);
+			_context.SaveChanges();
+		}
 		public void AddBook(int ReadsListID, int BookID)
 		{
 			Read TempRead = _context.Reads.FirstOrDefault(c => c.Id == ReadsListID);

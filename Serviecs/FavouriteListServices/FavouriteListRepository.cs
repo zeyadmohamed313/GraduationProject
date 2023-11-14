@@ -38,6 +38,12 @@ namespace GraduationProject.Serviecs.FavouriteListServices
 		}
 		#endregion
 		#region Add
+		public void AddFavouriteToUser(FavouriteList favouritelist)
+		{
+			var Check = _context.FavouriteLists.FirstOrDefault(e => e.UserId == favouritelist.UserId);
+			_context.FavouriteLists.Add(favouritelist);
+			_context.SaveChanges();
+		}
 		public void AddBook(int FavouriteListID, int BookID)
 		{
 			FavouriteList TempFav = _context.FavouriteLists.FirstOrDefault(c => c.Id == FavouriteListID);
