@@ -17,7 +17,7 @@ namespace GraduationProject.Models
 
 		// Navigation property for the related User
 		public ApplicationUser ApplicationUser { get; set; }
-		public List<Book> Books { get; set; }
+		public List<Book> Books { get; set; } = new List<Book>();
 
 	}
 }

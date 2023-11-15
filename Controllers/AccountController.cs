@@ -39,7 +39,7 @@ namespace GraduationProject.Controllers
 			_favouriteListRepository = favouriteListRepository;
 			_signInManager=signInManager;
 		}
-
+		#region Register
 		[HttpPost("Register")]
 		public async Task<IActionResult> Register([FromBody] ApplicationUserDTO TempUser)
 		{
@@ -84,7 +84,9 @@ namespace GraduationProject.Controllers
 			else
 				return BadRequest(ModelState);
 		}
+		#endregion
 
+		#region Login
 		[HttpPost("login")] 
 		public async Task<IActionResult> Login(LoginDTO TempUser)
 		{
@@ -139,7 +141,9 @@ namespace GraduationProject.Controllers
 			}
 			return Unauthorized();
 		}
+		#endregion
 
+		#region ForgetPassword
 		[HttpPost("ForgetPassword")]
 		public async Task<IActionResult> ForgetPassword(ForgotPasswordDTO TempUser)
 		{
@@ -166,6 +170,9 @@ namespace GraduationProject.Controllers
 			}
 			return Unauthorized();
 		}
+		#endregion
+
+		#region ChangePassword
 		[HttpPost("changePassword")]
 		public async Task<IActionResult> changePassword(ChangePasswordDTO TempUser)
 		{
@@ -195,7 +202,27 @@ namespace GraduationProject.Controllers
 			}
 			return Unauthorized();
 		}
-		
+		#endregion
+
+		#region GetAuthenticatedUser
+		[HttpGet("GetAuthenticatedUser")]
+		public IActionResult GetAuthenticatedUser()
+		{
+			if (User.Identity.IsAuthenticated)
+			{
+				// User is authenticated
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				// Your code here
+				return Ok($"Authenticated user with ID: {userId}");
+			}
+			else
+			{
+				return Unauthorized("Not authenticated");
+			}
+		}
+
+		#endregion
+
 	}
-	
+
 }

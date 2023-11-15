@@ -21,7 +21,7 @@ namespace GraduationProject.Controllers
 		}
 
 		#region Get
-		[HttpGet("GetToReadList/{id}")]
+		[HttpGet("GetReadList/{id}")]
 		public IActionResult GetByID(int id)
 		{
 			Read tempToRead = _ReadRepository.GetById(id);
@@ -40,7 +40,7 @@ namespace GraduationProject.Controllers
 			return Ok(read);
 		}
 
-		[HttpGet("GetAllBooksInMyToReadList/{id}")]
+		[HttpGet("GetAllBooksInMyReadList/{id}")]
 		public IActionResult GetAll(int id)
 		{
 			var allBooksInMyReadList = _ReadRepository.GetAllBooksInMyReadsList(id);
@@ -53,7 +53,7 @@ namespace GraduationProject.Controllers
 		#endregion
 
 		#region Add
-		[HttpPost("AddBookToToReadList/{ReadIdlist}/{bookId}")]
+		[HttpPost("AddBookToReadList/{ReadIdlist}/{bookId}")]
 		public IActionResult AddBookToToRead(int ReadIdlist, int bookId)
 		{
 			var toRead = _ReadRepository.GetById(ReadIdlist);
@@ -74,7 +74,7 @@ namespace GraduationProject.Controllers
 		#endregion
 
 		#region Delete
-		[HttpDelete("DeleteBookFromToReadList/{ReadListId}/{bookId}")]
+		[HttpDelete("DeleteBookFromReadList/{ReadListId}/{bookId}")]
 		public IActionResult DeleteBookFromToRead(int ReadListId, int bookId)
 		{
 			var toRead = _ReadRepository.GetById(ReadListId);

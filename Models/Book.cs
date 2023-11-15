@@ -36,12 +36,12 @@ namespace GraduationProject.Models
 
 		[ForeignKey("Category")]
 		public int CategoryId { get; set; }
-		public Category Category { get; set; }
-		public List<Notes>? Notes { get; set; }
-		public List<MyPlan>? Myplans { get; set; }
-		public List<CurrentlyReading>?currentlyReadings { get; set; }
-		public List<FavouriteList>? favourites { get; set; }
-		public List<Plan>? plans { get; set; }
+		public Category Category { get; set; } 
+		public List<Notes>? Notes { get; set; } = new List<Notes>();
+		public List<MyPlan>? Myplans { get; set; } = new List<MyPlan>();
+		public List<CurrentlyReading>? currentlyReadings { get; set; } = new List<CurrentlyReading>();
+		public List<FavouriteList>? favourites { get; set; } = new List<FavouriteList>();
+		public List<Plan>? plans { get; set; } = new List<Plan>();
 
 	}
 }

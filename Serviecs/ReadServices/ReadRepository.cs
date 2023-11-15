@@ -39,6 +39,7 @@ namespace GraduationProject.Serviecs.ReadServices
 		}
 
 		#endregion
+
 		#region ADD
 		public void AddReadToUser(Read read)
 		{
@@ -50,10 +51,11 @@ namespace GraduationProject.Serviecs.ReadServices
 		{
 			Read TempRead = _context.Reads.FirstOrDefault(c => c.Id == ReadsListID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
-			TempRead.Books.Add(TempBook);
-			_context.SaveChanges();
+				TempRead.Books.Add(TempBook);
+				_context.SaveChanges();
 		}
 		#endregion
+
 		#region Delete
 		public void DeleteBook(int ReadListID, int BookID)
 		{

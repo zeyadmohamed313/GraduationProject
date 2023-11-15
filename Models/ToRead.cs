@@ -13,7 +13,7 @@ namespace GraduationProject.Models
 		public string UserId { get; set; }
 
 		// Collection of books associated with the currently reading list
-		public List<Book>? Books { get; set; }
+		public List<Book>? Books { get; set; } = new List<Book>();
 
 		// Navigation property for the related User
 		public ApplicationUser ApplicationUser { get; set; }

@@ -33,11 +33,14 @@ namespace GraduationProject.Serviecs.NotesServices
 			return notes;
 		}
 		#endregion
+		#region Add
 		public void Add(Notes note)
 		{
 			_context.Notes.Add(note);
 			_context.SaveChanges();
 		}
+		#endregion
+		#region Update
 		// controller to Service DTO
 		public void UpdateNote(int noteId, NoteDTO updatedNote)
 		{
@@ -48,7 +51,8 @@ namespace GraduationProject.Serviecs.NotesServices
 			existingNote.NoteText = updatedNote.NoteText;
 			_context.SaveChanges();
 		}
-
+		#endregion
+		#region Delete
 		public void Delete(int id)
 		{
 			var note = _context.Notes.FirstOrDefault(o => o.Id == id);
@@ -57,5 +61,6 @@ namespace GraduationProject.Serviecs.NotesServices
 				_context.SaveChanges();
 			
 		}
+		#endregion
 	}
 }

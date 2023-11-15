@@ -39,6 +39,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		}
 
 		#endregion
+
 		#region ADD
 		public void AddCurrentlyReadingListToUser(CurrentlyReading currentlyReading)
 		{
@@ -56,6 +57,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 			_context.SaveChanges();
 		}
 		#endregion
+
 		#region Delete
 		public void DeleteBook(int CurrentlyReadingsListID, int BookID)
 		{

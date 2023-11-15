@@ -56,6 +56,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 			_context.SaveChanges();
 		}
 		#endregion
+
 		#region Delete
 		public void DeleteBook(int ToReadListID, int BookID)
 		{
