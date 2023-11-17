@@ -33,6 +33,18 @@ namespace GraduationProject.Controllers
 			}
 			return Ok(books);
 		}
+		[HttpGet("SearchForBook/{Name}")]
+		public IActionResult SearchForBook([FromQuery] string Name)
+		{
+			if(string.IsNullOrWhiteSpace(Name))
+				return BadRequest("Name cannot be empty");
+			var searchResult = _bookRepository.SearchForBooks(Name);
+			if(searchResult == null)
+			{
+				return NotFound("Book Is Not Found");
+			}
+			return Ok(searchResult);
+		}
 
 		[HttpGet("Get By ID/{id}")]
 		public IActionResult GetById(int id)

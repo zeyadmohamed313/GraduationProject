@@ -36,6 +36,26 @@ namespace GraduationProject.Serviecs.FavouriteListServices
 				}).ToList();
 			return booksInsomeFavouriteList;
 		}
+		public List<BookDTO> SearchForBooks(string UserID,string Name)
+		{
+			var Fav = _context.FavouriteLists.FirstOrDefault(e => e.UserId == UserID);
+
+			var matchingBooks = Fav.Books
+				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
+							   book.Author.ToLower().Contains(Name.ToLower()))
+				.Select(book => new BookDTO
+				{
+					ID = book.ID,
+					Title = book.Title,
+					Author = book.Author,
+					Description = book.Description,
+					GoodReadsUrl = book.GoodReadsUrl,
+					CategoryId = book.CategoryId,
+				})
+				.ToList();
+
+			return matchingBooks;
+		}
 		#endregion
 		#region Add
 		public void AddFavouriteToUser(FavouriteList favouritelist)

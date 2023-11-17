@@ -6,6 +6,7 @@ namespace GraduationProject.Serviecs.BookServices
 	{
 		Book GetById(int id);
 		List<Book> GetAll();
+		public List<BookDTO> SearchForBooks(string Name);
 		void Add(BookDTO book);
 		void Update(int id,BookDTO newbook);
 		void Delete(int id);

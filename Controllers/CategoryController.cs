@@ -50,6 +50,18 @@ namespace GraduationProject.Controllers
 				return NotFound("There Is No Books in This Category");
 			return Ok(books);
 		}
+		[HttpGet("SearchForBook/{Name}")]
+		public IActionResult SearchForBook([FromQuery] string Name)
+		{
+			if (string.IsNullOrWhiteSpace(Name))
+				return BadRequest("Name cannot be empty");
+			var searchResult = _categoryRepository.SearchForCategory(Name);
+			if (searchResult == null)
+			{
+				return NotFound("Book Is Not Found");
+			}
+			return Ok(searchResult);
+		}
 		#endregion
 		#region ADD
 		[HttpPost("AddCategory")]

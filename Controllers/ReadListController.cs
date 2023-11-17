@@ -2,8 +2,10 @@
 using GraduationProject.Serviecs.BookServices;
 using GraduationProject.Serviecs.CurrentlyReadingServices;
 using GraduationProject.Serviecs.ReadServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GraduationProject.Controllers
 {
@@ -49,6 +51,24 @@ namespace GraduationProject.Controllers
 				return NotFound("Read List Is Empty");
 			}
 			return Ok(allBooksInMyReadList);
+		}
+		[HttpGet("SearchForBook/{Name}")]
+		public IActionResult SearchForBook([FromQuery] string Name)
+		{
+
+			if (string.IsNullOrWhiteSpace(Name))
+				return BadRequest("Name cannot be empty");
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (userId == null)
+			{
+				return BadRequest("You should Be Authenticated First");
+			}
+			var searchResult = _ReadRepository.SearchForBooks(userId, Name);
+			if (searchResult == null)
+			{
+				return NotFound("Book Is Not Found");
+			}
+			return Ok(searchResult);
 		}
 		#endregion
 

@@ -40,6 +40,19 @@ namespace GraduationProject.Serviecs.CategoryServices
 				.ToList();
 			return booksInSomeCategory;
 		}
+		public List<CategoryDTO> SearchForCategory(string name)
+		{
+			var matchingBooks = _context.Categories
+			.Where(Category => Category.Name.Contains(name))
+			.Select(Category => new CategoryDTO
+			{
+				ID = Category.ID,
+				Name = Category.Name,
+				Description = Category.Description,
+			})
+			.ToList();
+			return matchingBooks;
+		}
 
 		#endregion
 		#region ADD

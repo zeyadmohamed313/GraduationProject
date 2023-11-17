@@ -5,6 +5,7 @@ using GraduationProject.Serviecs.CurrentlyReadingServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GraduationProject.Controllers
 {
@@ -48,6 +49,24 @@ namespace GraduationProject.Controllers
 				return NotFound("Currently Readings List Is Empty");
 		    }
 			return Ok(AllTheBooksInMyCurrentlyList);
+		}
+		[HttpGet("SearchForBook/{Name}")]
+		public IActionResult SearchForBook([FromQuery] string Name)
+		{
+
+			if (string.IsNullOrWhiteSpace(Name))
+				return BadRequest("Name cannot be empty");
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if(userId == null)
+			{
+				return BadRequest("You should Be Authenticated First");
+			}
+			var searchResult = _currentlyReadingRepository.SearchForBooks(userId,Name);
+			if (searchResult == null)
+			{
+				return NotFound("Book Is Not Found");
+			}
+			return Ok(searchResult);
 		}
 		#endregion
 		#region Add

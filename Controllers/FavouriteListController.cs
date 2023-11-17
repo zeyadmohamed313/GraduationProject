@@ -3,6 +3,7 @@ using GraduationProject.Serviecs.BookServices;
 using GraduationProject.Serviecs.FavouriteListServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GraduationProject.Controllers
 {
@@ -47,6 +48,24 @@ namespace GraduationProject.Controllers
 				return NotFound("FavouriteList Is Empty");
 			}
 			return Ok(allBooksInMyFavouriteList);
+		}
+		[HttpGet("SearchForBook/{Name}")]
+		public IActionResult SearchForBook([FromQuery] string Name)
+		{
+
+			if (string.IsNullOrWhiteSpace(Name))
+				return BadRequest("Name cannot be empty");
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (userId == null)
+			{
+				return BadRequest("You should Be Authenticated First");
+			}
+			var searchResult = _favouriteListRepository.SearchForBooks(userId, Name);
+			if (searchResult == null)
+			{
+				return NotFound("Book Is Not Found");
+			}
+			return Ok(searchResult);
 		}
 		#endregion
 

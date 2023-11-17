@@ -2,6 +2,7 @@
 using GraduationProject.DTO;
 using GraduationProject.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GraduationProject.Serviecs.BookServices
 {
@@ -23,6 +24,24 @@ namespace GraduationProject.Serviecs.BookServices
 		public List<Book> GetAll()
 		{
 			return _context.Books.ToList();
+		}
+		public List<BookDTO> SearchForBooks(string Name)
+		{
+			var matchingBooks = _context.Books
+				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
+							   book.Author.ToLower().Contains(Name.ToLower()))
+				.Select(book => new BookDTO
+				{
+					ID = book.ID,
+					Title = book.Title,
+					Author = book.Author,
+					Description = book.Description,
+					GoodReadsUrl = book.GoodReadsUrl,
+					CategoryId = book.CategoryId,
+				})
+				.ToList();
+
+			return matchingBooks;
 		}
 		#endregion
 		#region ADD

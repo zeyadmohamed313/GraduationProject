@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace GraduationProject.Serviecs.ReadServices
 {
@@ -37,7 +38,25 @@ namespace GraduationProject.Serviecs.ReadServices
 				}).ToList();
 			return booksInsomeCurrentlyReadingList;
 		}
+		public List<BookDTO> SearchForBooks(string UserID,string Name)
+		{
+			var Read = _context.Reads.FirstOrDefault(e => e.UserId == UserID);
+			var matchingBooks = Read.Books
+				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
+							   book.Author.ToLower().Contains(Name.ToLower()))
+				.Select(book => new BookDTO
+				{
+					ID = book.ID,
+					Title = book.Title,
+					Author = book.Author,
+					Description = book.Description,
+					GoodReadsUrl = book.GoodReadsUrl,
+					CategoryId = book.CategoryId,
+				})
+				.ToList();
 
+			return matchingBooks;
+		}
 		#endregion
 
 		#region ADD
