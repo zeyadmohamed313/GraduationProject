@@ -43,47 +43,54 @@ namespace GraduationProject.Controllers
 		[HttpPost("Register")]
 		public async Task<IActionResult> Register([FromBody] ApplicationUserDTO TempUser)
 		{
-
-			if (ModelState.IsValid == true)
+			try
 			{
-				ApplicationUser User = new ApplicationUser();
-				User.Email = TempUser.Email;
-				User.Major = TempUser.Major;
-				User.UserName = TempUser.UserName;
-				if (await _usermanger.FindByEmailAsync(User.Email) != null)
+				if (ModelState.IsValid == true)
 				{
-					return BadRequest("This Email Already Exsists");
-				}
-				else if (await _usermanger.FindByNameAsync(User.UserName) != null)
-				{
-					return BadRequest("This Name Is already Exsists");
-				}
-				IdentityResult result = await _usermanger.CreateAsync(User, TempUser.Password);
-				if (result.Succeeded)
-				{
-					_currentlyReadingRepository
-						.AddCurrentlyReadingListToUser(new CurrentlyReading() { UserId=User.Id});
-					_readRepository
-						.AddReadToUser(new Read() { UserId = User.Id });
-					_toReadRepository
-						.AddToReadToUser(new ToRead() { UserId = User.Id });
-					_favouriteListRepository.
-						AddFavouriteToUser(new FavouriteList() { UserId = User.Id });
+					ApplicationUser User = new ApplicationUser();
+					User.Email = TempUser.Email;
+					User.Major = TempUser.Major;
+					User.UserName = TempUser.UserName;
+					if (await _usermanger.FindByEmailAsync(User.Email) != null)
+					{
+						return BadRequest("This Email Already Exsists");
+					}
+					else if (await _usermanger.FindByNameAsync(User.UserName) != null)
+					{
+						return BadRequest("This Name Is already Exsists");
+					}
+					IdentityResult result = await _usermanger.CreateAsync(User, TempUser.Password);
+					if (result.Succeeded)
+					{
+						_currentlyReadingRepository
+							.AddCurrentlyReadingListToUser(new CurrentlyReading() { UserId = User.Id });
+						_readRepository
+							.AddReadToUser(new Read() { UserId = User.Id });
+						_toReadRepository
+							.AddToReadToUser(new ToRead() { UserId = User.Id });
+						_favouriteListRepository.
+							AddFavouriteToUser(new FavouriteList() { UserId = User.Id });
 
-					return Ok("Account Add Succeeded");
+						return Ok("Account Add Succeeded");
+					}
+					else
+					{
+						var Errors = string.Empty;
+						foreach (var error in result.Errors)
+						{
+							Errors += $"{error.Description}',,,,'";
+						}
+						return BadRequest(Errors);
+					}
 				}
 				else
-				{
-					var Errors = string.Empty;
-					foreach (var error in result.Errors)
-					{
-						Errors += $"{error.Description}',,,,'";
-					}
-					return BadRequest(Errors);
-				}
+					return BadRequest(ModelState);
 			}
-			else
-				return BadRequest(ModelState);
+            catch(Exception ex)
+			{
+				return StatusCode(500, "An unexpected error occurred during registration.");
+
+			}
 		}
 		#endregion
 
@@ -91,13 +98,15 @@ namespace GraduationProject.Controllers
 		[HttpPost("login")] 
 		public async Task<IActionResult> Login(LoginDTO TempUser)
 		{
-			if (ModelState.IsValid)
-			{  //check + create token  
-				ApplicationUser user = await _usermanger.FindByNameAsync(TempUser.UserName);
-				if (user != null)
-				{
-					bool found = await _usermanger.CheckPasswordAsync(user, TempUser.Password);
-					
+			try
+			{
+				if (ModelState.IsValid)
+				{  //check + create token  
+					ApplicationUser user = await _usermanger.FindByNameAsync(TempUser.UserName);
+					if (user != null)
+					{
+						bool found = await _usermanger.CheckPasswordAsync(user, TempUser.Password);
+
 
 						if (found)
 						{
@@ -135,12 +144,18 @@ namespace GraduationProject.Controllers
 								expiration = MyToken.ValidTo
 							});
 						}
-					
-				}
 
+					}
+
+					return Unauthorized();
+				}
 				return Unauthorized();
 			}
-			return Unauthorized();
+			catch(Exception ex)
+			{
+				return StatusCode(500, "An unexpected error occurred during registration.");
+
+			}
 		}
 		#endregion
 
@@ -148,28 +163,36 @@ namespace GraduationProject.Controllers
 		[HttpPost("ForgetPassword")]
 		public async Task<IActionResult> ForgetPassword(ForgotPasswordDTO TempUser)
 		{
-			ApplicationUser User = await _usermanger.FindByNameAsync(TempUser.UserName);
-			var token = await _usermanger.GeneratePasswordResetTokenAsync(User);
-			if (User != null)
+			try
 			{
-
-				var result = await _usermanger.ResetPasswordAsync(User, token, TempUser.NewPassword);
-				if (result.Succeeded)
+				ApplicationUser User = await _usermanger.FindByNameAsync(TempUser.UserName);
+				var token = await _usermanger.GeneratePasswordResetTokenAsync(User);
+				if (User != null)
 				{
 
-					return Ok("New PassWord Add Done");
-				}
-				else
-				{
-					var Errors = string.Empty;
-					foreach (var error in result.Errors)
+					var result = await _usermanger.ResetPasswordAsync(User, token, TempUser.NewPassword);
+					if (result.Succeeded)
 					{
-						Errors += $"{error.Description}  +  ";
+
+						return Ok("New PassWord Add Done");
 					}
-					return BadRequest(Errors);
+					else
+					{
+						var Errors = string.Empty;
+						foreach (var error in result.Errors)
+						{
+							Errors += $"{error.Description}  +  ";
+						}
+						return BadRequest(Errors);
+					}
 				}
+				return Unauthorized();
 			}
-			return Unauthorized();
+			catch(Exception ex)
+			{
+				return StatusCode(500, "An unexpected error occurred during registration.");
+
+			}
 		}
 		#endregion
 
@@ -177,31 +200,39 @@ namespace GraduationProject.Controllers
 		[HttpPost("changePassword")]
 		public async Task<IActionResult> changePassword(ChangePasswordDTO TempUser)
 		{
-			ApplicationUser user = await _usermanger.FindByNameAsync(TempUser.UserName);
-			if (user != null)
+			try
 			{
-
-				var result = await _usermanger.ChangePasswordAsync(user, TempUser.OldPassword,TempUser.NewPassword);
-				//ChangePasswordAsync(user, user.PasswordHash, NewPassword);
-				//  GeneratePasswordResetTokenAsync(user);
-				if (result.Succeeded)
+				ApplicationUser user = await _usermanger.FindByNameAsync(TempUser.UserName);
+				if (user != null)
 				{
 
-					return Ok("Password  Change Succeeded");
-				}
-				else
-				{
-					var Errors = string.Empty;
-					foreach (var error in result.Errors)
+					var result = await _usermanger.ChangePasswordAsync(user, TempUser.OldPassword, TempUser.NewPassword);
+					//ChangePasswordAsync(user, user.PasswordHash, NewPassword);
+					//  GeneratePasswordResetTokenAsync(user);
+					if (result.Succeeded)
 					{
-						Errors += $"{error.Description}  +  ";
-					}
-					return BadRequest(Errors);
-				}
 
+						return Ok("Password  Change Succeeded");
+					}
+					else
+					{
+						var Errors = string.Empty;
+						foreach (var error in result.Errors)
+						{
+							Errors += $"{error.Description}  +  ";
+						}
+						return BadRequest(Errors);
+					}
+
+
+				}
+				return Unauthorized();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "An unexpected error occurred during registration.");
 
 			}
-			return Unauthorized();
 		}
 		#endregion
 
@@ -209,16 +240,24 @@ namespace GraduationProject.Controllers
 		[HttpGet("GetAuthenticatedUser")]
 		public IActionResult GetAuthenticatedUser()
 		{
-			if (User.Identity.IsAuthenticated)
+			try
 			{
-				// User is authenticated
-				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-				// Your code here
-				return Ok($"Authenticated user with ID: {userId}");
+				if (User.Identity.IsAuthenticated)
+				{
+					// User is authenticated
+					var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+					// Your code here
+					return Ok($"Authenticated user with ID: {userId}");
+				}
+				else
+				{
+					return Unauthorized("Not authenticated");
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				return Unauthorized("Not authenticated");
+				return StatusCode(500, "An unexpected error occurred during registration.");
+
 			}
 		}
 
