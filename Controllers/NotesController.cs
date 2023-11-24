@@ -37,13 +37,13 @@ namespace GraduationProject.Controllers
 			}
 		}
 
-		[HttpGet("GetNotesByUserId")]
-		public IActionResult GetAllNotesForUser()
+		[HttpGet("GetNotesByUserId/{BookID}")]
+		public IActionResult GetAllNotesForUser(int BookID)
 		{
 			try
 			{
 				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-				var noteDTOs =_noteRepository.GetAllNotesForUser(userId);
+				var noteDTOs =_noteRepository.GetAllNotesForUser(userId,BookID);
 
 				if (noteDTOs == null || noteDTOs.Count == 0)
 				{

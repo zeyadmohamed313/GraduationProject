@@ -16,17 +16,16 @@ namespace GraduationProject.Serviecs.NotesServices
 		public NoteDTO GetById(int id)
 		{
 		   Notes Note =  _context.Notes.FirstOrDefault(e=>e.Id==id);
-		   return new NoteDTO { Id = id , UserId =Note.UserId,BookId=Note.BookId,PageNumber=Note.PageNumber,NoteText=Note.NoteText};
+		   return new NoteDTO { PageNumber=Note.PageNumber,NoteText=Note.NoteText};
 		}
 
-		public List<NoteDTO> GetAllNotesForUser(String UserID)
+		public List<NoteDTO> GetAllNotesForUser(String UserID,int BookID)
 		{
-			List<NoteDTO> notes = _context.Notes.Where(e => e.UserId == UserID)
+			List<NoteDTO> notes = _context.Notes.Where(e => e.UserId == UserID 
+			&& e.BookId==BookID)
 				.Select(note => new NoteDTO
 				{
-					Id = note.Id,
-					UserId = note.UserId,
-					BookId = note.BookId,
+					
 					PageNumber = note.PageNumber,
 					NoteText = note.NoteText
 				}).ToList();

@@ -79,7 +79,7 @@ namespace GraduationProject.Controllers
 		}
 
 		[HttpGet("SearchForBook/{Name}")]
-		public IActionResult SearchForBook([FromQuery] string Name)
+		public IActionResult SearchForBook(string Name)
 		{
 			try
 			{

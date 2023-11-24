@@ -27,7 +27,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 
 		public List<BookDTO> GetAllBooksInMyToReadsList(string UserID)
 		{
-			var booksInsomeToReadingList = _context.Reads
+			var booksInsomeToReadingList = _context.ToReads
 			.Include(cr => cr.Books)
 			.FirstOrDefault(e => e.UserId == UserID)?.Books;
 			var bookDTOs = booksInsomeToReadingList
@@ -46,7 +46,7 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		}
 		public List<BookDTO> SearchForBooks(string UserID,string Name)
 		{
-			var ToRead = _context.Reads.Include(e=>e.Books).FirstOrDefault(e => e.UserId == UserID);
+			var ToRead = _context.ToReads.Include(e=>e.Books).FirstOrDefault(e => e.UserId == UserID);
 			var matchingBooks = ToRead.Books
 				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
 							   book.Author.ToLower().Contains(Name.ToLower()))
