@@ -4,7 +4,7 @@ using GraduationProject.Serviecs.FavouriteListServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-
+using Microsoft.AspNetCore.Authorization;
 namespace GraduationProject.Controllers
 {
 	[Route("api/[controller]")]
@@ -21,95 +21,144 @@ namespace GraduationProject.Controllers
 		}
 
 		#region Get
+
 		[HttpGet("GetFavouriteList/{id}")]
 		public IActionResult GetByID(int id)
 		{
-			FavouriteList tempFavouriteList = _favouriteListRepository.GetById(id);
-			if (tempFavouriteList == null)
+			try
 			{
-				return NotFound("This FavouriteList Is Not Exists");
+				FavouriteList tempFavouriteList = _favouriteListRepository.GetById(id);
+				if (tempFavouriteList == null)
+				{
+					return NotFound("This FavouriteList does not exist.");
+				}
+				return Ok(tempFavouriteList);
 			}
-			return Ok(tempFavouriteList);
-		}
-		[HttpGet("GetByUserId/{UserID}")]
-		public IActionResult GetByUserID(string UserID)
-		{
-			var fav = _favouriteListRepository.GetByUserId(UserID);
-			if (fav == null)
-				return NotFound("There is No Currently Reading List for this User");
-			return Ok(fav);
-		}
-		[HttpGet("GetAllBooksInMyFavouriteList/{id}")]
-		public IActionResult GetAll(int id)
-		{
-			var allBooksInMyFavouriteList = _favouriteListRepository.GetAllBooksInMyFavouriteList(id);
-			if (allBooksInMyFavouriteList == null)
+			catch (Exception ex)
 			{
-				return NotFound("FavouriteList Is Empty");
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 			}
-			return Ok(allBooksInMyFavouriteList);
 		}
+
+		[HttpGet("GetByUserId")]
+		public IActionResult GetByUserID()
+		{
+			try
+			{
+				var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var favList = _favouriteListRepository.GetByUserId(userID);
+				if (favList == null)
+					return NotFound("There is no Favourite List for this user.");
+				return Ok(favList);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
+		}
+
+		[HttpGet("GetAllBooksInMyFavouriteList")]
+		public IActionResult GetAll()
+		{
+			try
+			{
+				var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var allBooksInMyFavList = _favouriteListRepository.GetAllBooksInMyFavouriteList(userID);
+				if (allBooksInMyFavList == null || allBooksInMyFavList.Count == 0)
+				{
+					return NotFound("Favourite List is empty.");
+				}
+				return Ok(allBooksInMyFavList);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
+		}
+
 		[HttpGet("SearchForBook/{Name}")]
 		public IActionResult SearchForBook([FromQuery] string Name)
 		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(Name))
+					return BadRequest("Name cannot be empty");
 
-			if (string.IsNullOrWhiteSpace(Name))
-				return BadRequest("Name cannot be empty");
-			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (userId == null)
-			{
-				return BadRequest("You should Be Authenticated First");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+				{
+					return BadRequest("You should be authenticated first");
+				}
+
+				var searchResult = _favouriteListRepository.SearchForBooks(userId, Name);
+
+				if (searchResult.Count() == 0)
+				{
+					return NotFound("Book is not found");
+				}
+
+				return Ok(searchResult);
 			}
-			var searchResult = _favouriteListRepository.SearchForBooks(userId, Name);
-			if (searchResult == null)
+			catch (Exception ex)
 			{
-				return NotFound("Book Is Not Found");
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 			}
-			return Ok(searchResult);
 		}
+
 		#endregion
 
 		#region Add
-		[HttpPost("AddBookToFavouriteList/{favouriteListId}/{bookId}")]
-		public IActionResult AddBookToFavouriteList(int favouriteListId, int bookId)
+
+		[HttpPost("AddBookToFavouriteList/{bookId}")]
+		public IActionResult AddBookToFavouriteList(int bookId)
 		{
-			var favouriteList = _favouriteListRepository.GetById(favouriteListId);
-			var book = _bookRepository.GetById(bookId);
-
-			if (favouriteList == null)
+			try
 			{
-				return NotFound("This FavouriteList Is Not Found");
-			}
-			else if (book == null)
-			{
-				return NotFound("This Book Is Not Found");
-			}
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var toRead = _favouriteListRepository.GetByUserId(userId);
+				var book = _bookRepository.GetById(bookId);
 
-			_favouriteListRepository.AddBook(favouriteListId, bookId);
-			return Ok("The Book Is Added To the FavouriteList");
+				if (book == null)
+				{
+					return NotFound("This book is not found");
+				}
+
+				_favouriteListRepository.AddBook(userId, bookId);
+				return Ok("The book is added to the Favourite List");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
+
 		#endregion
 
 		#region Delete
-		[HttpDelete("DeleteBookFromFavouriteList/{favouriteListId}/{bookId}")]
-		public IActionResult DeleteBookFromFavouriteList(int favouriteListId, int bookId)
+
+		[HttpDelete("DeleteBookFromFavouriteList/{bookId}")]
+		public IActionResult DeleteBookFromFavouriteList(int bookId)
 		{
-			var favouriteList = _favouriteListRepository.GetById(favouriteListId);
-			var book = _bookRepository.GetById(bookId);
-
-			if (favouriteList == null)
+			try
 			{
-				return NotFound("This FavouriteList Is Not Found");
-			}
-			else if (book == null)
-			{
-				return NotFound("This Book Is Not Found");
-			}
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var toRead = _favouriteListRepository.GetByUserId(userId);
+				var book = _bookRepository.GetById(bookId);
 
-			_favouriteListRepository.DeleteBook(favouriteListId, bookId);
-			return Ok("The Book Is Removed From the FavouriteList");
+				if (book == null)
+				{
+					return NotFound("This book is not found");
+				}
+
+				_favouriteListRepository.DeleteBook(userId, bookId);
+				return Ok("The book is removed from the Favourite List");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
-		#endregion
 
+		#endregion
 	}
 }

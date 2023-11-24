@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace GraduationProject.Serviecs.ReadServices
@@ -24,23 +25,28 @@ namespace GraduationProject.Serviecs.ReadServices
 			return _context.Reads.FirstOrDefault(e => e.UserId==userId);
 		}
 
-		public List<BookDTO> GetAllBooksInMyReadsList(int id)
+		public List<BookDTO> GetAllBooksInMyReadsList(string UserID)
 		{
-			var booksInsomeCurrentlyReadingList = _context.Reads.FirstOrDefault(e => e.Id == id).Books
-				.Select(book => new BookDTO
-				{
-					ID = book.ID,
-					Title = book.Title,
-					Description = book.Description,
-					Author = book.Author,
-					GoodReadsUrl = book.GoodReadsUrl,
-					CategoryId = book.CategoryId,
-				}).ToList();
-			return booksInsomeCurrentlyReadingList;
+			var booksInsomeReadingList = _context.Reads
+			.Include(cr => cr.Books)
+			.FirstOrDefault(e => e.UserId == UserID)?.Books;
+			var bookDTOs = booksInsomeReadingList
+			.Select(book => new BookDTO
+			{
+				ID = book.ID,
+				Title = book.Title,
+				Description = book.Description,
+				Author = book.Author,
+				GoodReadsUrl = book.GoodReadsUrl,
+				CategoryId = book.CategoryId,
+			})
+			.ToList();
+
+			return bookDTOs;
 		}
 		public List<BookDTO> SearchForBooks(string UserID,string Name)
 		{
-			var Read = _context.Reads.FirstOrDefault(e => e.UserId == UserID);
+			var Read = _context.Reads.Include(e=>e.Books).FirstOrDefault(e => e.UserId == UserID);
 			var matchingBooks = Read.Books
 				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
 							   book.Author.ToLower().Contains(Name.ToLower()))
@@ -66,9 +72,9 @@ namespace GraduationProject.Serviecs.ReadServices
 			_context.Reads.Add(read);
 			_context.SaveChanges();
 		}
-		public void AddBook(int ReadsListID, int BookID)
+		public void AddBook(string UserID, int BookID)
 		{
-			Read TempRead = _context.Reads.FirstOrDefault(c => c.Id == ReadsListID);
+			Read TempRead = _context.Reads.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 				TempRead.Books.Add(TempBook);
 				_context.SaveChanges();
@@ -76,10 +82,10 @@ namespace GraduationProject.Serviecs.ReadServices
 		#endregion
 
 		#region Delete
-		public void DeleteBook(int ReadListID, int BookID)
+		public void DeleteBook(string UserID, int BookID)
 		{
 
-			Read TempRead = _context.Reads.FirstOrDefault(c => c.Id == ReadListID);
+			Read TempRead = _context.Reads.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempRead.Books.Remove(TempBook);
 			_context.SaveChanges();

@@ -7,12 +7,12 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 	{
 		ToRead GetById(int id);
 		public ToRead GetByUserId(string userId);
-		List<BookDTO> GetAllBooksInMyToReadsList(int id);
+		List<BookDTO> GetAllBooksInMyToReadsList(string UserID);
 		public List<BookDTO> SearchForBooks(string UserID,string Name);
 
 		public void AddToReadToUser(ToRead toread);
 
-		public void AddBook(int ToReadListID, int BookID);
-		public void DeleteBook(int ToReadListID, int BookID);
+		public void AddBook(string UserID, int BookID);
+		public void DeleteBook(string UserID, int BookID);
 	}
 }

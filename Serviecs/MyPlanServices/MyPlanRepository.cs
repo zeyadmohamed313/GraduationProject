@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Serviecs.MyPlanServices
 {
@@ -22,10 +23,10 @@ namespace GraduationProject.Serviecs.MyPlanServices
 			return _context.MyPlans.FirstOrDefault(e => e.UserId == UserID);
 		}
 
-		public List<PlanDTO> GetAllPlansInMyPlan(int id)
+		public List<PlanDTO> GetAllPlansInMyPlan(string UserID)
 		{
-			var plansInSomeMyPlan = _context.MyPlans
-				.FirstOrDefault(e => e.Id == id)
+			var plansInSomeMyPlan = _context.MyPlans.Include(e=>e.Plans)
+				.FirstOrDefault(e => e.UserId == UserID)
 				.Plans
 				.Select(plan => new PlanDTO
 				{
@@ -41,9 +42,9 @@ namespace GraduationProject.Serviecs.MyPlanServices
 		#endregion
 		#region Add
 
-		public void AddPlan(int myPlanId, int planId)
+		public void AddPlan(string UserID, int planId)
 		{
-			MyPlan tempMyPlan = _context.MyPlans.FirstOrDefault(c => c.Id == myPlanId);
+			MyPlan tempMyPlan = _context.MyPlans.FirstOrDefault(c => c.UserId == UserID);
 			Plan tempPlan = _context.Plans.FirstOrDefault(c => c.Id == planId);
 
 			tempMyPlan.Plans.Add(tempPlan);
@@ -54,9 +55,9 @@ namespace GraduationProject.Serviecs.MyPlanServices
 
 		#region Delete
 
-		public void DeletePlan(int myPlanId, int planId)
+		public void DeletePlan(string UserID, int planId)
 		{
-			MyPlan tempMyPlan = _context.MyPlans.FirstOrDefault(c => c.Id == myPlanId);
+			MyPlan tempMyPlan = _context.MyPlans.FirstOrDefault(c => c.UserId== UserID);
 			Plan tempPlan = _context.Plans.FirstOrDefault(c => c.Id == planId);
 
 			tempMyPlan.Plans.Remove(tempPlan);

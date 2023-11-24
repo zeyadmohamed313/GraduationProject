@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Serviecs.FavouriteListServices
 {
@@ -22,23 +23,30 @@ namespace GraduationProject.Serviecs.FavouriteListServices
 		    return _context.FavouriteLists.FirstOrDefault(e => e.UserId == userId);	
 		}
 
-		public List<BookDTO> GetAllBooksInMyFavouriteList(int id)
+		public List<BookDTO> GetAllBooksInMyFavouriteList(string UserID)
 		{
-			var booksInsomeFavouriteList = _context.FavouriteLists.FirstOrDefault(e => e.Id == id).Books
-				.Select(book => new BookDTO
-				{
-					ID = book.ID,
-					Title = book.Title,
-					Description = book.Description,
-					Author = book.Author,
-					GoodReadsUrl = book.GoodReadsUrl,
-					CategoryId = book.CategoryId,
-				}).ToList();
-			return booksInsomeFavouriteList;
+			try
+			{
+				var booksInsomeFavouriteList = _context.FavouriteLists.Include(e => e.Books).FirstOrDefault(e => e.UserId == UserID).Books
+					.Select(book => new BookDTO
+					{
+						ID = book.ID,
+						Title = book.Title,
+						Description = book.Description,
+						Author = book.Author,
+						GoodReadsUrl = book.GoodReadsUrl,
+						CategoryId = book.CategoryId,
+					}).ToList();
+				return booksInsomeFavouriteList;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
 		}
 		public List<BookDTO> SearchForBooks(string UserID,string Name)
 		{
-			var Fav = _context.FavouriteLists.FirstOrDefault(e => e.UserId == UserID);
+			var Fav = _context.FavouriteLists.Include(e=>e.Books).FirstOrDefault(e => e.UserId == UserID);
 
 			var matchingBooks = Fav.Books
 				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
@@ -64,18 +72,18 @@ namespace GraduationProject.Serviecs.FavouriteListServices
 			_context.FavouriteLists.Add(favouritelist);
 			_context.SaveChanges();
 		}
-		public void AddBook(int FavouriteListID, int BookID)
+		public void AddBook(string UserID, int BookID)
 		{
-			FavouriteList TempFav = _context.FavouriteLists.FirstOrDefault(c => c.Id == FavouriteListID);
+			FavouriteList TempFav = _context.FavouriteLists.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempFav.Books.Add(TempBook);
 			_context.SaveChanges();
 		}
 		#endregion
 		#region Delete
-		public void DeleteBook(int FavouriteListID, int BookID)
+		public void DeleteBook(string UserID, int BookID)
 		{
-			FavouriteList TempFav = _context.FavouriteLists.FirstOrDefault(c => c.Id == FavouriteListID);
+			FavouriteList TempFav = _context.FavouriteLists.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempFav.Books.Remove(TempBook);
 			_context.SaveChanges();

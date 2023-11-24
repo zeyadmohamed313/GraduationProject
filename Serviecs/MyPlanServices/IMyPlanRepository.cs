@@ -7,9 +7,9 @@ namespace GraduationProject.Serviecs.MyPlanServices
 	{
 		MyPlan GetById(int id);
 		MyPlan GetByUserID(string  UserID);
-		List<PlanDTO> GetAllPlansInMyPlan(int id);
-		 void AddPlan(int myPlanId, int planId);
-		 void DeletePlan(int myPlanId, int planId);
+		List<PlanDTO> GetAllPlansInMyPlan(string UserID);
+		 void AddPlan(string UserID,int planId);
+		 void DeletePlan(string UserID, int planId);
 
 	}
 }

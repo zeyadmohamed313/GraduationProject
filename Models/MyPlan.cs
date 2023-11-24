@@ -17,6 +17,6 @@ namespace GraduationProject.Models
 		public ApplicationUser ApplicationUser { get; set; }
 
 		// A collection of plans associated with the user
-		public List<Plan> Plans { get; set; } = new List<Plan>();
+		public List<Plan>? Plans { get; set; } = new List<Plan>();
 	}
 }

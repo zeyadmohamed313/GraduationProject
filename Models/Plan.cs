@@ -16,6 +16,6 @@ namespace GraduationProject.Models
 
 		public string ImgUrl { get; set; } = string.Empty;
 		// A collection of books associated with the plan
-		public List<Book> Books { get; set; } = new List<Book>();
+		public List<Book>? Books { get; set; } = new List<Book>();
 	}
 }

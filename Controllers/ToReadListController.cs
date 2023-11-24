@@ -1,10 +1,11 @@
 ﻿using GraduationProject.Models;
 using GraduationProject.Serviecs.BookServices;
 using GraduationProject.Serviecs.CurrentlyReadingServices;
-using Microsoft.AspNetCore.Authorization;
+//using GraduationProject.Serviecs.ToReadServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GraduationProject.Controllers
 {
@@ -22,96 +23,144 @@ namespace GraduationProject.Controllers
 		}
 
 		#region Get
+
 		[HttpGet("GetToReadList/{id}")]
 		public IActionResult GetByID(int id)
 		{
-			ToRead tempToRead = _toReadRepository.GetById(id);
-			if (tempToRead == null)
+			try
 			{
-				return NotFound("This ToReadList Is Not Exists");
+				ToRead tempToRead = _toReadRepository.GetById(id);
+				if (tempToRead == null)
+				{
+					return NotFound("This ToReadList does not exist.");
+				}
+				return Ok(tempToRead);
 			}
-			return Ok(tempToRead);
-		}
-		[HttpGet("GetByUserId/{UserID}")]
-		public IActionResult GetByUserID(string UserID)
-		{
-			var toread = _toReadRepository.GetByUserId(UserID);
-			if (toread == null)
-				return NotFound("There is No Currently Reading List for this User");
-			return Ok(toread);
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
 
-		[HttpGet("GetAllBooksInMyToReadList/{id}")]
-		public IActionResult GetAll(int id)
+		[HttpGet("GetByUserId")]
+		public IActionResult GetByUserID()
 		{
-			var allBooksInMyToReadList = _toReadRepository.GetAllBooksInMyToReadsList(id);
-			if (allBooksInMyToReadList == null)
+			try
 			{
-				return NotFound("ToRead List Is Empty");
+				var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var toRead = _toReadRepository.GetByUserId(userID);
+				if (toRead == null)
+					return NotFound("There is no ToRead List for this user.");
+				return Ok(toRead);
 			}
-			return Ok(allBooksInMyToReadList);
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
+
+		[HttpGet("GetAllBooksInMyToReadList")]
+		public IActionResult GetAll()
+		{
+			try
+			{
+				var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var allBooksInMyToReadList = _toReadRepository.GetAllBooksInMyToReadsList(userID);
+				if (allBooksInMyToReadList == null || allBooksInMyToReadList.Count == 0)
+				{
+					return NotFound("ToRead List is empty.");
+				}
+				return Ok(allBooksInMyToReadList);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
+		}
+
 		[HttpGet("SearchForBook/{Name}")]
 		public IActionResult SearchForBook([FromQuery] string Name)
 		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(Name))
+					return BadRequest("Name cannot be empty");
 
-			if (string.IsNullOrWhiteSpace(Name))
-				return BadRequest("Name cannot be empty");
-			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (userId == null)
-			{
-				return BadRequest("You should Be Authenticated First");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+				{
+					return BadRequest("You should be authenticated first");
+				}
+
+				var searchResult = _toReadRepository.SearchForBooks(userId, Name);
+
+				if (searchResult.Count() == 0)
+				{
+					return NotFound("Book is not found");
+				}
+
+				return Ok(searchResult);
 			}
-			var searchResult = _toReadRepository.SearchForBooks(userId, Name);
-			if (searchResult == null)
+			catch (Exception ex)
 			{
-				return NotFound("Book Is Not Found");
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 			}
-			return Ok(searchResult);
 		}
+
 		#endregion
 
 		#region Add
-		[HttpPost("AddBookToToReadList/{toReadIdlist}/{bookId}")]
-		public IActionResult AddBookToToRead(int toReadIdlist, int bookId)
+
+		[HttpPost("AddBookToToReadList/{bookId}")]
+		public IActionResult AddBookToToRead(int bookId)
 		{
-			var toRead = _toReadRepository.GetById(toReadIdlist);
-			var book = _bookRepository.GetById(bookId);
-
-			if (toRead == null)
+			try
 			{
-				return NotFound("This ToRead Is Not Found");
-			}
-			else if (book == null)
-			{
-				return NotFound("This Book Is Not Found");
-			}
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var toRead = _toReadRepository.GetByUserId(userId);
+				var book = _bookRepository.GetById(bookId);
 
-			_toReadRepository.AddBook(toReadIdlist, bookId);
-			return Ok("The Book Is Added To the ToRead List");
+				if (book == null)
+				{
+					return NotFound("This book is not found");
+				}
+
+				_toReadRepository.AddBook(userId, bookId);
+				return Ok("The book is added to the ToRead List");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
+
 		#endregion
 
 		#region Delete
-		[HttpDelete("DeleteBookFromToReadList/{toReadListId}/{bookId}")]
-		public IActionResult DeleteBookFromToRead(int toReadListId, int bookId)
+
+		[HttpDelete("DeleteBookFromToReadList/{bookId}")]
+		public IActionResult DeleteBookFromToRead(int bookId)
 		{
-			var toRead = _toReadRepository.GetById(toReadListId);
-			var book = _bookRepository.GetById(bookId);
-
-			if (toRead == null)
+			try
 			{
-				return NotFound("This ToRead Is Not Found");
-			}
-			else if (book == null)
-			{
-				return NotFound("This Book Is Not Found");
-			}
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var toRead = _toReadRepository.GetByUserId(userId);
+				var book = _bookRepository.GetById(bookId);
 
-			_toReadRepository.DeleteBook(toReadListId, bookId);
-			return Ok("The Book Is Removed From the ToRead List");
+				if (book == null)
+				{
+					return NotFound("This book is not found");
+				}
+
+				_toReadRepository.DeleteBook(userId, bookId);
+				return Ok("The book is removed from the ToRead List");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+			}
 		}
-		#endregion
 
+		#endregion
 	}
 }

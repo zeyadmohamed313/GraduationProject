@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Serviecs.MyPlanServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GraduationProject.Controllers
 {
@@ -18,56 +19,95 @@ namespace GraduationProject.Controllers
 		[HttpGet("GetByID/{id}")]
 		public IActionResult GetById(int id)
 		{
-			var myPlan = _myPlanRepository.GetById(id);
-
-			if (myPlan == null)
+			try
 			{
-				return NotFound("MyPlan not found");
-			}
+				var myPlan = _myPlanRepository.GetById(id);
 
-			return Ok(myPlan);
+				if (myPlan == null)
+				{
+					return NotFound("MyPlan not found");
+				}
+
+				return Ok(myPlan);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal Server Error: {ex.Message}");
+			}
 		}
 
-		[HttpGet("GetByUserId/{userId}")]
-		public IActionResult GetByUserId(string userId)
+		[HttpGet("GetByUserId")]
+		public IActionResult GetByUserId()
 		{
-			var myPlan = _myPlanRepository.GetByUserID(userId);
-
-			if (myPlan == null)
+			try
 			{
-				return NotFound("MyPlan not found");
-			}
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var myPlan = _myPlanRepository.GetByUserID(userId);
 
-			return Ok(myPlan);
+				if (myPlan == null)
+				{
+					return NotFound("MyPlan not found");
+				}
+
+				return Ok(myPlan);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal Server Error: {ex.Message}");
+			}
 		}
 
 		[HttpGet("GetAllPlansInMyPlan/{id}")]
-		public IActionResult GetAllPlansInMyPlan(int id)
+		public IActionResult GetAllPlansInMyPlan()
 		{
-			var plansInMyPlan = _myPlanRepository.GetAllPlansInMyPlan(id);
-
-			if (plansInMyPlan == null || plansInMyPlan.Count == 0)
+			try
 			{
-				return NotFound("No plans found in MyPlan");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var plansInMyPlan = _myPlanRepository.GetAllPlansInMyPlan(userId);
+
+				if (plansInMyPlan == null || plansInMyPlan.Count == 0)
+				{
+					return NotFound("No plans found in MyPlan");
+				}
+
+				return Ok(plansInMyPlan);
 			}
-
-			return Ok(plansInMyPlan);
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal Server Error: {ex.Message}");
+			}
 		}
 
-		[HttpPost("AddPlan/{myPlanId}/{planId}")]
-		public IActionResult AddPlan(int myPlanId, int planId)
+		[HttpPost("AddPlan/{planId}")]
+		public IActionResult AddPlan( int planId)
 		{
-			_myPlanRepository.AddPlan(myPlanId, planId);
+			try
+			{
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				_myPlanRepository.AddPlan(userId, planId);
 
-			return Ok("Plan added to MyPlanList successfully");
+				return Ok("Plan added to MyPlanList successfully");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal Server Error: {ex.Message}");
+			}
 		}
 
-		[HttpDelete("DeletePlan/{myPlanId}/{planId}")]
-		public IActionResult DeletePlan(int myPlanId, int planId)
+		[HttpDelete("DeletePlan/{planId}")]
+		public IActionResult DeletePlan( int planId)
 		{
-			_myPlanRepository.DeletePlan(myPlanId, planId);
+			try
+			{
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				_myPlanRepository.DeletePlan(userId, planId);
 
-			return Ok("Plan removed from MyPlan successfully");
+				return Ok("Plan removed from MyPlan successfully");
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal Server Error: {ex.Message}");
+			}
 		}
 	}
 }

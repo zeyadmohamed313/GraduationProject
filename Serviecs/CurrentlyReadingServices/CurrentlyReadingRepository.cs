@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Serviecs.CurrentlyReadingServices
 {
@@ -23,23 +24,29 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 			return _context.CurrentlyReadings.FirstOrDefault(e => e.UserId == userId);
 
 		}
-		public List<BookDTO> GetAllBooksInMyCurrentlyReadingList(int id)
+		public List<BookDTO> GetAllBooksInMyCurrentlyReadingList(string UserID)
 		{
-			var booksInsomeCurrentlyReadingList = _context.CurrentlyReadings.FirstOrDefault(e => e.Id == id).Books
-				.Select(book => new BookDTO
-				{
-					ID = book.ID,
-					Title = book.Title,
-					Description = book.Description,
-					Author = book.Author,
-					GoodReadsUrl = book.GoodReadsUrl,
-					CategoryId = book.CategoryId,
-				}).ToList();
-			return booksInsomeCurrentlyReadingList;
+			// eager loading
+			var booksInsomeCurrentlyReadingList = _context.CurrentlyReadings
+			.Include(cr => cr.Books)
+			.FirstOrDefault(e => e.UserId == UserID)?.Books;
+			var bookDTOs = booksInsomeCurrentlyReadingList
+			.Select(book => new BookDTO
+			{
+				ID = book.ID,
+				Title = book.Title,
+				Description = book.Description,
+				Author = book.Author,
+				GoodReadsUrl = book.GoodReadsUrl,
+				CategoryId = book.CategoryId,
+			})
+			.ToList();
+
+			return bookDTOs;
 		}
 		public List<BookDTO> SearchForBooks(string UserID ,string Name)
 		{
-			var CLR = _context.CurrentlyReadings.FirstOrDefault(e=>e.UserId == UserID);
+			var CLR = _context.CurrentlyReadings.Include(e=>e.Books).FirstOrDefault(e=>e.UserId == UserID);
 			var matchingBooks = CLR.Books
 				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
 							   book.Author.ToLower().Contains(Name.ToLower()))
@@ -68,19 +75,20 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 			
 		}
 
-		public void AddBook(int CurrentlyReadingsListID, int BookID)
+		public void AddBook(string UserID, int BookID)
 		{
-			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.Id == CurrentlyReadingsListID);
+			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempCLR.Books.Add(TempBook);
+			var x = TempCLR.Books;
 			_context.SaveChanges();
 		}
 		#endregion
 
 		#region Delete
-		public void DeleteBook(int CurrentlyReadingsListID, int BookID)
+		public void DeleteBook(string UserID, int BookID)
 		{
-			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.Id == CurrentlyReadingsListID);
+			CurrentlyReading TempCLR = _context.CurrentlyReadings.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempCLR.Books.Remove(TempBook);
 			_context.SaveChanges();

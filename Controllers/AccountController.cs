@@ -43,6 +43,7 @@ namespace GraduationProject.Controllers
 		[HttpPost("Register")]
 		public async Task<IActionResult> Register([FromBody] ApplicationUserDTO TempUser)
 		{
+
 			if (ModelState.IsValid == true)
 			{
 				ApplicationUser User = new ApplicationUser();

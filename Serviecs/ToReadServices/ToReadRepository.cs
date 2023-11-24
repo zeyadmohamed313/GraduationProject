@@ -1,6 +1,7 @@
 ﻿using GraduationProject.Data.Context;
 using GraduationProject.DTO;
 using GraduationProject.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduationProject.Serviecs.CurrentlyReadingServices
 {
@@ -24,23 +25,28 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		}
 
 
-		public List<BookDTO> GetAllBooksInMyToReadsList(int id)
+		public List<BookDTO> GetAllBooksInMyToReadsList(string UserID)
 		{
-			var booksInsomeCurrentlyReadingList = _context.ToReads.FirstOrDefault(e => e.Id == id).Books
-				.Select(book => new BookDTO
-				{
-					ID = book.ID,
-					Title = book.Title,
-					Description = book.Description,
-					Author = book.Author,
-					GoodReadsUrl = book.GoodReadsUrl,
-					CategoryId = book.CategoryId,
-				}).ToList();
-			return booksInsomeCurrentlyReadingList;
+			var booksInsomeToReadingList = _context.Reads
+			.Include(cr => cr.Books)
+			.FirstOrDefault(e => e.UserId == UserID)?.Books;
+			var bookDTOs = booksInsomeToReadingList
+			.Select(book => new BookDTO
+			{
+				ID = book.ID,
+				Title = book.Title,
+				Description = book.Description,
+				Author = book.Author,
+				GoodReadsUrl = book.GoodReadsUrl,
+				CategoryId = book.CategoryId,
+			})
+			.ToList();
+
+			return bookDTOs;
 		}
 		public List<BookDTO> SearchForBooks(string UserID,string Name)
 		{
-			var ToRead = _context.Reads.FirstOrDefault(e => e.UserId == UserID);
+			var ToRead = _context.Reads.Include(e=>e.Books).FirstOrDefault(e => e.UserId == UserID);
 			var matchingBooks = ToRead.Books
 				.Where(book => book.Title.ToLower().Contains(Name.ToLower()) ||
 							   book.Author.ToLower().Contains(Name.ToLower()))
@@ -67,9 +73,9 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 			_context.ToReads.Add(toread);
 			_context.SaveChanges();
 		}
-		public void AddBook(int ToReadsListID, int BookID)
+		public void AddBook(string UserID, int BookID)
 		{
-			ToRead TempToRead = _context.ToReads.FirstOrDefault(c => c.Id == ToReadsListID);
+			ToRead TempToRead = _context.ToReads.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempToRead.Books.Add(TempBook);
 			_context.SaveChanges();
@@ -77,9 +83,9 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 		#endregion
 
 		#region Delete
-		public void DeleteBook(int ToReadListID, int BookID)
+		public void DeleteBook(string UserID, int BookID)
 		{
-			ToRead TempToRead = _context.ToReads.FirstOrDefault(c => c.Id == ToReadListID);
+			ToRead TempToRead = _context.ToReads.FirstOrDefault(c => c.UserId == UserID);
 			Book TempBook = _context.Books.FirstOrDefault(c => c.ID == BookID);
 			TempToRead.Books.Remove(TempBook);
 			_context.SaveChanges();

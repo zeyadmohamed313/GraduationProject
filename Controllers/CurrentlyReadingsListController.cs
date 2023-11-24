@@ -25,86 +25,137 @@ namespace GraduationProject.Controllers
 		[HttpGet("GetReadingList/{id}")]
 		public IActionResult GetByID(int id) 
 		{
-			CurrentlyReading TempClr = _currentlyReadingRepository.GetById(id);
-			if(TempClr == null)
+			try
 			{
-				return NotFound("This CurrentlyReadingsList Is Not Exsists");
+				CurrentlyReading TempClr = _currentlyReadingRepository.GetById(id);
+				if (TempClr == null)
+				{
+					return NotFound("This CurrentlyReadingsList Is Not Exsists");
+				}
+				return Ok(TempClr);
 			}
-			return Ok(TempClr);
-		}
-		[HttpGet("GetByUserId/{UserID}")]
-		public IActionResult GetByUserID(string UserID) 
-		{ 
-		   var cur=  _currentlyReadingRepository.GetByUserId(UserID);
-			if (cur == null)
-				return NotFound("There is No Currently Reading List for this User");
-			return Ok(cur);
-		}
-		[HttpGet("Get All Books in My Clr/{id}")]
-		public IActionResult GetAll(int id)
-		{
-			var AllTheBooksInMyCurrentlyList = _currentlyReadingRepository.GetAllBooksInMyCurrentlyReadingList(id);
-			if(AllTheBooksInMyCurrentlyList==null)
+			catch (Exception ex)
 			{
-				return NotFound("Currently Readings List Is Empty");
-		    }
-			return Ok(AllTheBooksInMyCurrentlyList);
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+
+			}
+		}
+		[HttpGet("GetByUserId")]
+		public IActionResult GetByUserID() 
+		{
+			try
+			{
+				var UserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var cur = _currentlyReadingRepository.GetByUserId(UserID);
+				if (cur == null)
+					return NotFound("There is No Currently Reading List for this User");
+				return Ok(cur);
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+
+			}
+		}
+		[HttpGet("Get All Books in My Clr")]
+		public IActionResult GetAll()
+		{
+			try
+			{
+				var UserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var AllTheBooksInMyCurrentlyList = _currentlyReadingRepository.GetAllBooksInMyCurrentlyReadingList(UserID);
+				if (AllTheBooksInMyCurrentlyList.Count() == 0)
+				{
+					return NotFound("Currently Readings List Is Empty");
+				}
+				return Ok(AllTheBooksInMyCurrentlyList);
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+
+			}
 		}
 		[HttpGet("SearchForBook/{Name}")]
 		public IActionResult SearchForBook([FromQuery] string Name)
 		{
+			try
+			{
+				if (string.IsNullOrWhiteSpace(Name))
+					return BadRequest("Name cannot be empty");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+				{
+					return BadRequest("You should Be Authenticated First");
+				}
+				var searchResult = _currentlyReadingRepository.SearchForBooks(userId, Name);
+				if (searchResult.Count() == 0)
+				{
+					return NotFound("Book Is Not Found");
+				}
+				return Ok(searchResult);
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 
-			if (string.IsNullOrWhiteSpace(Name))
-				return BadRequest("Name cannot be empty");
-			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if(userId == null)
-			{
-				return BadRequest("You should Be Authenticated First");
 			}
-			var searchResult = _currentlyReadingRepository.SearchForBooks(userId,Name);
-			if (searchResult == null)
-			{
-				return NotFound("Book Is Not Found");
-			}
-			return Ok(searchResult);
 		}
 		#endregion
 		#region Add
-		[HttpPost("AddBookToCurrentlyReading/{CurrentlyReadingId}/{BookID}")]
-		public IActionResult AddBookToCurrentlyReading(int CurrentlyReadingID,int BookID)
+		[HttpPost("AddBookToCurrentlyReading/{BookID}")]
+		public IActionResult AddBookToCurrentlyReading(int BookID)
 		{
-			var CLR = _currentlyReadingRepository.GetById(CurrentlyReadingID);
-			var Book = _bookRepository.GetById(BookID);
-			if( CLR == null) 
+			try
 			{
-				return NotFound("This Currently Reading IS Not Found");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var CLR = _currentlyReadingRepository.GetByUserId(userId);
+				var Book = _bookRepository.GetById(BookID);
+				if (CLR == null)
+				{
+					return NotFound("This Currently Reading IS Not Found");
+				}
+				if (Book == null)
+				{
+					return NotFound("This Book IS Not Found");
+
+				}
+				_currentlyReadingRepository.AddBook(userId, BookID);
+				return Ok("The Book Is Add To the Currently List");
 			}
-			else if( Book == null ) 
+			catch(Exception ex)
 			{
-				return NotFound("This Book IS Not Found");
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 
 			}
-			_currentlyReadingRepository.AddBook(CurrentlyReadingID,BookID);
-			return Ok("The Book Is Add To the Currently List");
 		}
 		#endregion
 		#region Delete
 		[HttpDelete("DeleteBook/{id}")]
-		public IActionResult DeleteBookFromCurrentlyReading(int CurrentlyReadingID, int BookID)
+		public IActionResult DeleteBookFromCurrentlyReading(int BookID)
 		{
-			var CLR = _currentlyReadingRepository.GetById(CurrentlyReadingID);
-			var Book = _bookRepository.GetById(BookID);
-			if (CLR == null)
+			try
 			{
-				return NotFound("This Currently Reading IS Not Found");
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var CLR = _currentlyReadingRepository.GetByUserId(userId);
+				var Book = _bookRepository.GetById(BookID);
+				if (CLR == null)
+				{
+					return NotFound("This Currently Reading IS Not Found");
+				}
+				else if (Book == null)
+				{
+					return NotFound("This Book IS Not Found");
+
+				}
+				_currentlyReadingRepository.DeleteBook(userId, BookID);
+				return Ok("The Book Is Add To the Currently List");
 			}
-			else if (Book == null)
+			catch(Exception ex)
 			{
-				return NotFound("This Book IS Not Found");
+				return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
 
 			}
-			_currentlyReadingRepository.DeleteBook(CurrentlyReadingID, BookID);
-			return Ok("The Book Is Add To the Currently List");
 		}
 		#endregion
 	}

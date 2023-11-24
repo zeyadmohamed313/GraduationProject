@@ -7,10 +7,10 @@ namespace GraduationProject.Serviecs.CurrentlyReadingServices
 	{
 		CurrentlyReading GetById(int id);
 		public CurrentlyReading GetByUserId(string userId);
-		List<BookDTO> GetAllBooksInMyCurrentlyReadingList(int id);
+		List<BookDTO> GetAllBooksInMyCurrentlyReadingList(string UserID);
 	    List<BookDTO> SearchForBooks(string id, string Name);
 		public void AddCurrentlyReadingListToUser(CurrentlyReading currentlyReading);
-		public void AddBook(int CurrentlyReadingsListID, int BookID);
-		public void DeleteBook(int CurrentlyReadingsListID, int BookID);
+		public void AddBook(string UserID, int BookID);
+		public void DeleteBook(string UserID, int BookID);
 	}
 }

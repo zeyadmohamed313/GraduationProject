@@ -3,6 +3,7 @@ using GraduationProject.Models;
 using GraduationProject.Serviecs.NotesServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GraduationProject.Controllers
 {
@@ -36,11 +37,12 @@ namespace GraduationProject.Controllers
 			}
 		}
 
-		[HttpGet("GetNotesByUserId/{userId}")]
-		public IActionResult GetAllNotesForUser(string userId)
+		[HttpGet("GetNotesByUserId")]
+		public IActionResult GetAllNotesForUser()
 		{
 			try
 			{
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 				var noteDTOs =_noteRepository.GetAllNotesForUser(userId);
 
 				if (noteDTOs == null || noteDTOs.Count == 0)
@@ -58,18 +60,19 @@ namespace GraduationProject.Controllers
 
 		#endregion
 		#region Add
-		[HttpPost("AddNote")]
-		public IActionResult AddNote([FromBody] NoteDTO newNote)
+		[HttpPost("AddNote/{BookID}")]
+		public IActionResult AddNote(int BookID,[FromBody] NoteDTO newNote)
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
 					// Optionally, you can map the DTO to an entity if needed
+					var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 					var noteEntity = new Notes
 					{
-						UserId = newNote.UserId,
-						BookId = newNote.BookId,
+						UserId = userId,
+						BookId = BookID,
 						PageNumber = newNote.PageNumber,
 						NoteText = newNote.NoteText
 					};
